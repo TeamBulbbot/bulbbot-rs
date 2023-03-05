@@ -1,7 +1,7 @@
 [package]
 name = "bulbbot-gw"
 description = "Gateway code for Bulbbot"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["y3ll0w <https://github.com/y3ll0wlife>"]
 license = "Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License"
@@ -28,4 +28,6 @@ serenity = { version = "0.11.5", default-features = false, features = [
     "gateway"
     ] }
 dotenv = "0.15.0"
-diesel = { version = "2.0.0", features = ["postgres"] }
+darkredis = "0.8.0"
+migration = { path = "./migration" }
+entity = { path = "./entity" }

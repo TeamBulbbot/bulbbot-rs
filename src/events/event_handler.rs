@@ -18,18 +18,19 @@ pub struct Handler;
 #[async_trait]
 impl EventHandler for Handler {
     // Dispatched when an unknown event was sent from discord.
-    async fn unknown(&self, _ctx: Context, _name: String, _raw: Value) {
+    async fn unknown(&self, _ctx: Context, name: String, _raw: Value) {
         //! Might not need
+        println!("{}", name)
     }
 
     // Dispatched upon startup.
-    async fn ready(&self, context: Context, ready: Ready) {
-        self.handle_ready(context, ready).await
+    async fn ready(&self, ctx: Context, ready: Ready) {
+        self.handle_ready(ctx, ready).await
     }
 
     // Dispatched upon reconnection.
-    async fn resume(&self, _ctx: Context, _event: ResumedEvent) {
-        // TODO implement
+    async fn resume(&self, ctx: Context, event: ResumedEvent) {
+        self.handle_resume(ctx, event).await
     }
 
     // Dispatched when a shard's connection stage is updated
@@ -153,12 +154,13 @@ impl EventHandler for Handler {
     // Dispatched when a message is updated.
     async fn message_update(
         &self,
-        _ctx: Context,
-        _old_if_available: Option<Message>,
-        _new: Option<Message>,
-        _event: MessageUpdateEvent,
+        ctx: Context,
+        old: Option<Message>,
+        new: Option<Message>,
+        event: MessageUpdateEvent,
     ) {
         // TODO implement
+        self.handle_message_update(ctx, old, new, event).await
     }
 
     // Dispatched when a message is deleted.
