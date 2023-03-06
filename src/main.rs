@@ -1,31 +1,16 @@
 mod database;
 mod events;
+mod manger_container_structs;
+mod redis;
 
-use darkredis::{Connection, ConnectionPool};
 use dotenv::dotenv;
-use entity::DatabaseConnection;
 use events::event_handler::Handler;
-use serenity::client::bridge::gateway::ShardManager;
+use manger_container_structs::{
+    DatabaseMangerContainer, RedisMangerContainer, ShardManagerContainer,
+};
 use serenity::prelude::*;
 use std::env;
-use std::sync::Arc;
-use tokio::sync::OnceCell;
 use tracing::log::{error, info};
-
-pub struct ShardManagerContainer;
-impl TypeMapKey for ShardManagerContainer {
-    type Value = Arc<Mutex<ShardManager>>;
-}
-
-pub struct RedisMangerContainer;
-impl TypeMapKey for RedisMangerContainer {
-    type Value = Connection;
-}
-
-pub struct DatabaseMangerContainer;
-impl TypeMapKey for DatabaseMangerContainer {
-    type Value = OnceCell<DatabaseConnection>;
-}
 
 #[tokio::main]
 async fn main() {
@@ -41,19 +26,11 @@ async fn main() {
         env!("CARGO_PKG_REPOSITORY")
     );
 
-    dotenv().ok().expect("[STARTUP] failed to load .env");
+    dotenv().ok().expect("[ENV] failed to load .env");
 
-    //  sudo service redis-server start
-    let pool = ConnectionPool::create(
-        env::var("REDIS_URL")
-            .expect("[STARTUP] expected 'REDIS_URL' in the environment")
-            .into(),
-        None,
-        16,
-    )
-    .await
-    .expect("[STARTUP] failed to validate the redis connection url");
-    let redis_conn = pool.get().await;
+    let redis = redis::init()
+        .await
+        .expect("[STARTUP/REDIS] failed to setup redis");
 
     let database = database::init()
         .await
@@ -69,7 +46,7 @@ async fn main() {
         | GatewayIntents::MESSAGE_CONTENT;
 
     let token =
-        env::var("DISCORD_TOKEN").expect("[STARTUP] expected 'DISCORD_TOKEN' in the environment");
+        env::var("DISCORD_TOKEN").expect("[ENV] expected 'DISCORD_TOKEN' in the environment");
 
     let mut client = Client::builder(token, intents)
         .event_handler(Handler)
@@ -80,7 +57,7 @@ async fn main() {
     {
         let mut data = client.data.write().await;
         data.insert::<ShardManagerContainer>(client.shard_manager.clone());
-        data.insert::<RedisMangerContainer>(redis_conn.clone());
+        data.insert::<RedisMangerContainer>(redis.clone());
         data.insert::<DatabaseMangerContainer>(database);
     }
     let shard_manager = client.shard_manager.clone();

@@ -4,8 +4,6 @@ pub mod prelude;
 
 pub mod banpool_subscribers;
 pub mod banpools;
-pub mod blacklists;
-pub mod experiments;
 pub mod guild_configurations;
 pub mod guild_loggings;
 pub mod guilds;

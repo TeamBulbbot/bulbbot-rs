@@ -23,6 +23,23 @@ pub struct Model {
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(has_one = "super::guild_configurations::Entity")]
+    GuildConfigurations,
+    #[sea_orm(has_one = "super::guild_loggings::Entity")]
+    GuildLoggings,
+}
+
+impl Related<super::guild_configurations::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::GuildConfigurations.def()
+    }
+}
+
+impl Related<super::guild_loggings::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::GuildLoggings.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}
