@@ -4,17 +4,62 @@ use serenity::prelude::Context;
 
 use crate::events::event_handler::Handler;
 
+#[derive(Debug)]
+enum WhatChanged {
+    Content,
+    Pinned,
+}
+
 impl Handler {
     pub async fn handle_message_update(
         &self,
-        _ctx: Context,
-        _old: Option<Message>,
-        _new: Option<Message>,
+        ctx: Context,
+        old: Option<Message>,
+        new: Option<Message>,
         _event: MessageUpdateEvent,
     ) {
-        //println!("Old: {:#?}", old.is_none());
-        //println!("New: {:#?}", new.is_none());
+        if old.is_none() || new.is_none() {
+            return;
+        }
 
-        //println!("event: {:#?}", event)
+        let mut what_changed: Vec<WhatChanged> = vec![];
+
+        // shoulnt be possible to fail but you never know
+        let old_msg = old.expect("[EVENT/MESSAGE_UPDATE] failed to unwarp 'old'");
+        let new_msg = new.expect("[EVENT/MESSAGE_UPDATE] failed to unwarp 'new'");
+
+        // prob is a better way of doing this, but cant bother
+        if old_msg.content != new_msg.content {
+            what_changed.push(WhatChanged::Content);
+        }
+        if old_msg.pinned != new_msg.pinned {
+            what_changed.push(WhatChanged::Pinned);
+        }
+
+        // nothing that we are checking was changed
+        if what_changed.len() == 0 {
+            return;
+        }
+
+        let mut log_message = String::new();
+
+        for change in &what_changed {
+            let txt = match change {
+                WhatChanged::Content => {
+                    format!("**B:** {}\n**A:** {}", &old_msg.content, &new_msg.content)
+                }
+                WhatChanged::Pinned => {
+                    if new_msg.pinned {
+                        format!("🥬 **Message was pinned**\n```{}```", new_msg.content)
+                    } else {
+                        format!("🚗 **Message was unpinned**\n```{}```", new_msg.content)
+                    }
+                }
+            };
+
+            log_message.push_str(txt.as_str());
+        }
+
+        self.send_log(&ctx, &log_message).await;
     }
 }
