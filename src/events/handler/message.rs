@@ -6,9 +6,15 @@ use serenity::prelude::Context;
 use crate::events::event_handler::Handler;
 use crate::{DatabaseMangerContainer, RedisMangerContainer};
 
+use super::loggers::LogType;
+
 impl Handler {
-    pub async fn handle_message(&self, ctx: Context, _msg: Message) {
-        let mut data = ctx.data.write().await;
+    pub async fn handle_message(&self, ctx: Context, msg: Message) {
+        if msg.author.bot {
+            return;
+        }
+
+        /*let mut data = ctx.data.write().await;
 
         let redis = data
             .get_mut::<RedisMangerContainer>()
@@ -18,6 +24,7 @@ impl Handler {
             Ok(_) => println!("pinged redis -> PONG"),
             Err(_) => panic!("failed to ping redis"),
         }
+         */
 
         // redis.set("secret", "Hello World").await;
         // redis
@@ -30,6 +37,7 @@ impl Handler {
         println!("{:#?}", secret_value);
         */
 
+        /*
         let db = data
             .get::<DatabaseMangerContainer>()
             .expect("failed")
@@ -44,7 +52,6 @@ impl Handler {
 
         println!("{}", guild.name);
 
-        /*
 
         let config = guild
             .find_related(GuildConfigurations)
@@ -65,6 +72,12 @@ impl Handler {
         */
 
         // TODO ?
-        // self.send_log(&ctx).await;
+        self.send_log(
+            &ctx,
+            msg.content.as_str(),
+            msg.guild_id,
+            LogType::MessageUpdate,
+        )
+        .await;
     }
 }

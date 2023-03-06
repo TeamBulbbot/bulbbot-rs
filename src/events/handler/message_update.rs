@@ -4,6 +4,8 @@ use serenity::prelude::Context;
 
 use crate::events::event_handler::Handler;
 
+use super::loggers::LogType;
+
 #[derive(Debug)]
 enum WhatChanged {
     Content,
@@ -60,6 +62,7 @@ impl Handler {
             log_message.push_str(txt.as_str());
         }
 
-        self.send_log(&ctx, &log_message).await;
+        self.send_log(&ctx, &log_message, new_msg.guild_id, LogType::MessageUpdate)
+            .await;
     }
 }
