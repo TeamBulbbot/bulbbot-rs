@@ -20,7 +20,7 @@ impl EventHandler for Handler {
     // Dispatched when an unknown event was sent from discord.
     async fn unknown(&self, _ctx: Context, name: String, _raw: Value) {
         //! Might not need
-        println!("{}", name)
+        println!("unknown event -> {}", name)
     }
 
     // Dispatched upon startup.
