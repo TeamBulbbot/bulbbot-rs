@@ -1,9 +1,11 @@
 use serenity::model::id::GuildId;
 use serenity::prelude::Context;
 use serenity::prelude::SerenityError;
+use tracing::log::info;
 
 use crate::events::event_handler::Handler;
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub enum LogType {
     MessageUpdate,
@@ -21,12 +23,21 @@ impl Handler {
         if guild_id.is_none() {
             return Ok(());
         }
-        //println!("Log message:\n{}", log_message);
+        let channel_id: u64 = 990301499986968576;
 
-        let channel = ctx.http.get_channel(990301499986968576).await?;
+        let channel = ctx.http.get_channel(channel_id).await?;
         let channel_guild = channel
             .guild()
             .expect("[LOGGER] failed to get guild on 'channel_guild'");
+
+        let channel_perms = channel_guild.permissions_for_user(&ctx.cache, 949718693389156392)?;
+        if !channel_perms.manage_webhooks() {
+            info!(
+                "Missing permission 'manage_webhooks' in channel {} in guild {}",
+                &channel_id, &channel_guild.guild_id
+            );
+        }
+
         let channel_webhooks = channel_guild.webhooks(&ctx.http).await?;
 
         let webhook = match channel_webhooks.first() {

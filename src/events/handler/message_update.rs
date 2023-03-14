@@ -1,6 +1,7 @@
 use serenity::model::channel::Message;
 use serenity::model::prelude::MessageUpdateEvent;
 use serenity::prelude::Context;
+use tracing::log::error;
 
 use crate::events::event_handler::Handler;
 
@@ -62,7 +63,11 @@ impl Handler {
             log_message.push_str(txt.as_str());
         }
 
-        self.send_log(&ctx, &log_message, new_msg.guild_id, LogType::MessageUpdate)
-            .await;
+        if let Err(why) = self
+            .send_log(&ctx, &log_message, new_msg.guild_id, LogType::MessageUpdate)
+            .await
+        {
+            error!("Error in {:#?} {:#?}", new_msg.guild_id, why);
+        }
     }
 }

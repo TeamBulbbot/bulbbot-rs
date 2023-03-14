@@ -1,10 +1,8 @@
-use entity::prelude::{GuildConfigurations, GuildLoggings, Guilds};
-use entity::sea_orm::ModelTrait;
 use serenity::model::channel::Message;
 use serenity::prelude::Context;
+use tracing::log::error;
 
 use crate::events::event_handler::Handler;
-use crate::{DatabaseMangerContainer, RedisMangerContainer};
 
 use super::loggers::LogType;
 
@@ -71,13 +69,16 @@ impl Handler {
 
         */
 
-        // TODO ?
-        self.send_log(
-            &ctx,
-            msg.content.as_str(),
-            msg.guild_id,
-            LogType::MessageUpdate,
-        )
-        .await;
+        if let Err(why) = self
+            .send_log(
+                &ctx,
+                msg.content.as_str(),
+                msg.guild_id,
+                LogType::MessageUpdate,
+            )
+            .await
+        {
+            error!("Error in {:#?} {:#?}", msg.guild_id, why);
+        }
     }
 }
