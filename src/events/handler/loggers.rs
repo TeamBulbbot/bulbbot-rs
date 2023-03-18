@@ -30,7 +30,8 @@ impl Handler {
             .guild()
             .expect("[LOGGER] failed to get guild on 'channel_guild'");
 
-        let channel_perms = channel_guild.permissions_for_user(&ctx.cache, 949718693389156392)?;
+        let channel_perms =
+            channel_guild.permissions_for_user(&ctx.cache, &ctx.cache.current_user_id())?;
         if !channel_perms.manage_webhooks() {
             info!(
                 "Missing permission 'manage_webhooks' in channel {} in guild {}",

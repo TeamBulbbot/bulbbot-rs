@@ -2,12 +2,5 @@
 
 pub mod prelude;
 
-pub mod banpool_subscribers;
-pub mod banpools;
-pub mod guild_configurations;
-pub mod guild_loggings;
 pub mod guilds;
-pub mod infractions;
-pub mod message_logs;
-pub mod reminds;
-pub mod tempbans;
+pub mod messages;

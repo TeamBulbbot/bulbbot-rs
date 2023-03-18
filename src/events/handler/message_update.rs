@@ -67,7 +67,7 @@ impl Handler {
             .send_log(&ctx, &log_message, new_msg.guild_id, LogType::MessageUpdate)
             .await
         {
-            error!("Error in {:#?} {:#?}", new_msg.guild_id, why);
+            error!("Guild id: {:#?} {:#?}", new_msg.guild_id, why);
         }
     }
 }
