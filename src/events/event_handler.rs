@@ -20,7 +20,7 @@ impl EventHandler for Handler {
     // Dispatched when an unknown event was sent from discord.
     async fn unknown(&self, _ctx: Context, name: String, _raw: Value) {
         //! Might not need
-        println!("{}", name)
+        println!("unknown event -> {}", name)
     }
 
     // Dispatched upon startup.
@@ -166,12 +166,13 @@ impl EventHandler for Handler {
     // Dispatched when a message is deleted.
     async fn message_delete(
         &self,
-        _ctx: Context,
-        _channel_id: ChannelId,
-        _deleted_message_id: MessageId,
-        _guild_id: Option<GuildId>,
+        ctx: Context,
+        channel_id: ChannelId,
+        deleted_message_id: MessageId,
+        guild_id: Option<GuildId>,
     ) {
-        // TODO implement
+        self.handle_message_delete(ctx, channel_id, deleted_message_id, guild_id)
+            .await
     }
 
     // Dispatched when multiple messages were deleted at once.

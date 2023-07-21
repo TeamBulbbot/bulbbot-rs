@@ -5,24 +5,20 @@ use sea_orm::entity::prelude::*;
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
 #[sea_orm(table_name = "guilds")]
 pub struct Model {
-    #[sea_orm(primary_key)]
-    pub id: i32,
-    #[sea_orm(column_name = "guildId")]
+    #[sea_orm(primary_key, auto_increment = false)]
     pub guild_id: String,
-    pub name: String,
-    #[sea_orm(column_name = "createdAt")]
-    pub created_at: DateTimeWithTimeZone,
-    #[sea_orm(column_name = "updatedAt")]
-    pub updated_at: DateTimeWithTimeZone,
-    #[sea_orm(column_name = "guildConfigurationId")]
-    pub guild_configuration_id: i32,
-    #[sea_orm(column_name = "guildLoggingId")]
-    pub guild_logging_id: i32,
-    #[sea_orm(column_name = "automodId")]
-    pub automod_id: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(has_many = "super::messages::Entity")]
+    Messages,
+}
+
+impl Related<super::messages::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Messages.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}

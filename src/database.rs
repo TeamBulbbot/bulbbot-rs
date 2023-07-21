@@ -1,14 +1,15 @@
+use entity::{
+    sea_orm::{ConnectOptions, Database, DbErr},
+    DatabaseConnection,
+};
 use std::env;
-
-use entity::sea_orm::{ConnectOptions, Database, DbErr};
-pub use entity::DatabaseConnection;
 use tokio::sync::OnceCell;
 use tracing::log::{self, info};
 
 pub async fn init() -> Result<OnceCell<DatabaseConnection>, DbErr> {
     info!("Initializing the the database");
-    let db_connection_url = env::var("DATABASE_URL")
-        .expect("[STARTUP/DATABASE] unable to find `DATABASE_URL` in the env");
+    let db_connection_url =
+        env::var("DATABASE_URL").expect("[ENV] expected 'DATABASE_URL' in the environment");
 
     let mut opt = ConnectOptions::new(db_connection_url.to_owned());
     opt
