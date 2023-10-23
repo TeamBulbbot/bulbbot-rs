@@ -31,11 +31,11 @@ issues and questions over at our [support server](https://bulbbot.rocks/discord)
 
 While we offer the code to be public for respect to our users, we are not able to provide you with any help with selfhosting the bot, but we will provide our own documentation for our own developers to setup their environment that you can use to figure out it on your own. https://docs.bulbbot.rocks/guides/setup-dev
 
-#### [Bulbbot.Gateway](Bulbbot.Gateway/)
+#### [Bulbbot.Gateway](bulbbot.Gateway/)
 
 Built with Rust to handle the Discord gateway events sent to the bot in a scalable way.
 
-#### [Bulbbot.Commands](Bulbbot.Commands/)
+#### [Bulbbot.Commands](bulbbot.Commands/)
 
 TBA but will be handling the interaction requests sent from Discord.
 
