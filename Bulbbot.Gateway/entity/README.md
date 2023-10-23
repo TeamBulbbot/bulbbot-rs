@@ -1,3 +1,9 @@
+# Entity
+
+**Generate database models from the database**
+
+> Do this after a migration
+
 ```
-`sea-orm-cli generate entity -u DATABASE_URL -o entity/src/generated
+sea-orm-cli generate entity -o src/generated
 ```

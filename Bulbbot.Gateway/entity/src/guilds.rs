@@ -1,7 +1,7 @@
-use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Select, Set};
-
 pub use crate::generated::guilds::*;
 use crate::generated::{guilds, prelude::Guilds};
+use crate::prelude::{GuildConfigurations, GuildLoggings};
+use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Select, Set};
 
 impl ActiveModel {}
 
@@ -16,7 +16,11 @@ impl Guilds {
         };
 
         let guild = Self::insert(guild_model);
+        let db_guild = guild.exec_with_returning(db).await.unwrap();
 
-        guild.exec_with_returning(db).await.unwrap()
+        GuildConfigurations::create_guild_configuration(db, guild_id).await;
+        GuildLoggings::create_guild_loggings(db, guild_id).await;
+
+        return db_guild;
     }
 }

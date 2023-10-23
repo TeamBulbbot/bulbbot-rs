@@ -1,9 +1,8 @@
+pub use crate::generated::messages::*;
+use crate::generated::{messages, prelude::Messages};
 use sea_orm::{
     ColumnTrait, DatabaseConnection, DbErr, EntityTrait, InsertResult, QueryFilter, Set,
 };
-
-pub use crate::generated::messages::*;
-use crate::generated::{messages, prelude::Messages};
 use serenity::model::prelude::Message;
 
 impl ActiveModel {}
