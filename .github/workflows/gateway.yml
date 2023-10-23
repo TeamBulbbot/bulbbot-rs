@@ -3,12 +3,12 @@ name: Bulbbot Gateway Validation
 on:
   push:
     paths:
-      - "./Bulbbot.Gateway/**"
+      - "Bulbbot.Gateway/**"
     branches:
       - master
   pull_request:
     paths:
-      - "./Bulbbot.Gateway/**"
+      - "Bulbbot.Gateway/**"
     types: [opened, edited, reopened]
 
 jobs:
