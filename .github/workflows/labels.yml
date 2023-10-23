@@ -1,0 +1,14 @@
+name: Pull Requests Labeler
+
+on: pull_request
+
+jobs:
+  labelPR:
+    name: Label PR With Repo(s)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label PRs
+        uses: tinkurlab/monorepo-pr-labeler-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          BASE_DIRS: "bulbbot.Commands|bulbbot.Gateway"
