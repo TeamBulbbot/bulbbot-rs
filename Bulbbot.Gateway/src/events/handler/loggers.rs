@@ -1,9 +1,12 @@
+use crate::events::event_handler::Handler;
+use crate::manger_container_structs::RedisMangerContainer;
 use serenity::model::id::GuildId;
 use serenity::prelude::Context;
 use serenity::prelude::SerenityError;
+use std::borrow::BorrowMut;
+use std::str;
+use tracing::error;
 use tracing::log::debug;
-
-use crate::events::event_handler::Handler;
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -23,9 +26,36 @@ impl Handler {
         if guild_id.is_none() {
             return Ok(());
         }
-        let channel_id: u64 = 990301499986968576;
 
-        let channel = ctx.http.get_channel(channel_id).await?;
+        let data = ctx.clone();
+        let data_write = data.data.read().await;
+
+        let mut redis_connection = data_write
+            .get::<RedisMangerContainer>()
+            .expect("[LOGGER] failed to get the 'RedisMangerContainer'")
+            .clone();
+        let redis = redis_connection.borrow_mut();
+        let redis_key = format!("{:#?}:{}", log_type, guild_id.unwrap());
+
+        let channel_id: Option<u64> = match redis.get(&redis_key).await {
+            Ok(v) => match v {
+                Some(value) => {
+                    let content = str::from_utf8(&value).expect("Invalid UTF-8 sequence");
+                    Some(content.parse().expect("Failed to convert content to u64"))
+                }
+                None => None,
+            },
+            Err(_) => {
+                error!("Failed to get '{}' from Redis", &redis_key);
+                None
+            }
+        };
+
+        if channel_id.is_none() {
+            return Ok(());
+        }
+
+        let channel = ctx.http.get_channel(channel_id.unwrap()).await?;
         let channel_guild = channel
             .guild()
             .expect("[LOGGER] failed to get guild on 'channel_guild'");
@@ -35,7 +65,8 @@ impl Handler {
         if !channel_perms.manage_webhooks() {
             debug!(
                 "Missing permission 'manage_webhooks' in channel {} in guild {}",
-                &channel_id, &channel_guild.guild_id
+                &channel_id.unwrap(),
+                &channel_guild.guild_id
             );
         }
 

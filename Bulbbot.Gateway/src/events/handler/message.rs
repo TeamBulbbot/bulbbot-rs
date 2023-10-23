@@ -1,10 +1,10 @@
+use crate::events::event_handler::Handler;
+use crate::manger_container_structs::DatabaseMangerContainer;
 use entity::prelude::{Guilds, Messages};
 use serenity::model::channel::Message;
 use serenity::prelude::Context;
+use tracing::info;
 use tracing::log::error;
-
-use crate::events::event_handler::Handler;
-use crate::manger_container_structs::DatabaseMangerContainer;
 
 impl Handler {
     pub async fn handle_message(&self, ctx: Context, msg: Message) {
@@ -12,32 +12,11 @@ impl Handler {
             return;
         }
 
-        let data = ctx.data.write().await;
+        let data = ctx.clone();
+        let data_read = data.data.read().await;
         let guild_id = u64::from(msg.guild_id.unwrap());
 
-        /*
-        let redis = data
-            .get_mut::<RedisMangerContainer>()
-            .expect("[EVENT/MESSAGE] failed to get the 'RedisMangerContainer'");
-
-        match redis.ping().await {
-            Ok(_) => println!("pinged redis -> PONG"),
-            Err(_) => panic!("failed to ping redis"),
-        }
-         */
-
-        // redis.set("secret", "Hello World").await;
-        // redis
-        //    .set_and_expire_seconds("secret", "Hello World", 5)
-        //   .await;
-
-        /* redis.incr("mykey").await;
-
-        let secret_value = redis.get("mykey").await;
-        println!("{:#?}", secret_value);
-        */
-
-        let db = data
+        let db = data_read
             .get::<DatabaseMangerContainer>()
             .expect("[EVENT/MESSAGE] failed to get the 'database manager container'")
             .get()
@@ -53,7 +32,7 @@ impl Handler {
             None => Guilds::create_guild(&db, guild_id).await,
         };
 
-        let inserted_message = match Messages::insert_message(&db, &msg, guild_id).await {
+        /*  let inserted_message = match Messages::insert_message(&db, &msg, guild_id).await {
             Ok(result) => result,
             Err(err) => {
                 error!("Database insert error on 'Messages::insert_message': {:#?} in guild {} and message id {}", &err, &guild_id, &msg.id);
@@ -61,6 +40,6 @@ impl Handler {
             }
         };
 
-        println!("{:#?}", inserted_message);
+        info!("inserted_message {:#?}", inserted_message);*/
     }
 }

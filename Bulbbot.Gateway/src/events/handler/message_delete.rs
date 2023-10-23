@@ -18,9 +18,10 @@ impl Handler {
         deleted_message_id: MessageId,
         guild_id: Option<GuildId>,
     ) {
-        let data = ctx.data.write().await;
+        let data = ctx.clone();
+        let data_read = data.data.read().await;
 
-        let db = data
+        let db = data_read
             .get::<DatabaseMangerContainer>()
             .expect("[EVENT/MESSAGE_DELETE] failed to get the 'database manager container'")
             .get()

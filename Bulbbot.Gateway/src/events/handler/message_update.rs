@@ -21,14 +21,16 @@ impl Handler {
             return;
         }
 
-        let data = ctx.data.write().await;
+        let data = ctx.clone();
+        let data_read = data.data.read().await;
+
         let guild_id = u64::from(event.guild_id.unwrap());
         let author = match event.author {
             None => return,
             Some(author) => author,
         };
 
-        let db = data
+        let db = data_read
             .get::<DatabaseMangerContainer>()
             .expect("[EVENT/MESSAGE_UPDATE] failed to get the 'database manager container'")
             .get()
@@ -39,7 +41,7 @@ impl Handler {
             id: event.id,
             content: event.content,
             guild_id: GuildId(guild_id),
-            author: BulbbotUser::create_user_from_message(&old.unwrap()),
+            author: BulbbotUser::create_user_from_message(&old.expect("'old' is None")),
             channel_id: event.channel_id,
         });
 
