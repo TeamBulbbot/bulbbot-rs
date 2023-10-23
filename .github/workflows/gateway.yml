@@ -1,14 +1,21 @@
-name: Rust
+name: Bulbbot Gateway Validation
 
 on:
   push:
+    paths:
+      - "./Bulbbot.Gateway/**"
     branches:
       - master
   pull_request:
+    paths:
+      - "./Bulbbot.Gateway/**"
     types: [opened, edited, reopened]
 
 jobs:
   test:
+    defaults:
+      run:
+        working-directory: ./Bulbbot.Gateway
     name: Test
     runs-on: ubuntu-latest
     steps:
@@ -19,6 +26,9 @@ jobs:
         run: cargo test
 
   fmt:
+    defaults:
+      run:
+        working-directory: ./Bulbbot.Gateway
     name: Rustfmt
     runs-on: ubuntu-latest
     steps:
@@ -30,6 +40,9 @@ jobs:
         run: cargo fmt --check
 
   clippy:
+    defaults:
+      run:
+        working-directory: ./Bulbbot.Gateway
     name: Clippy
     runs-on: ubuntu-latest
     steps:

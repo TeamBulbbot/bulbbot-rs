@@ -238,21 +238,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bulbbot-gw"
-version = "0.2.1"
-dependencies = [
- "darkredis",
- "dotenv",
- "entity",
- "migration",
- "serenity",
- "tokio",
- "tracing",
- "tracing-futures",
- "tracing-subscriber 0.2.25",
-]
-
-[[package]]
 name = "bumpalo"
 version = "3.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -698,6 +683,21 @@ dependencies = [
  "pin-project-lite",
  "pin-utils",
  "slab",
+]
+
+[[package]]
+name = "gateway"
+version = "0.2.1"
+dependencies = [
+ "darkredis",
+ "dotenv",
+ "entity",
+ "migration",
+ "serenity",
+ "tokio",
+ "tracing",
+ "tracing-futures",
+ "tracing-subscriber 0.2.25",
 ]
 
 [[package]]
