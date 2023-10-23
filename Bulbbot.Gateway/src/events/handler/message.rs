@@ -32,7 +32,7 @@ impl Handler {
             None => Guilds::create_guild(&db, guild_id).await,
         };
 
-        /*  let inserted_message = match Messages::insert_message(&db, &msg, guild_id).await {
+        let inserted_message = match Messages::insert_message(&db, &msg, guild_id).await {
             Ok(result) => result,
             Err(err) => {
                 error!("Database insert error on 'Messages::insert_message': {:#?} in guild {} and message id {}", &err, &guild_id, &msg.id);
@@ -40,6 +40,6 @@ impl Handler {
             }
         };
 
-        info!("inserted_message {:#?}", inserted_message);*/
+        info!("inserted_message {:#?}", inserted_message);
     }
 }
