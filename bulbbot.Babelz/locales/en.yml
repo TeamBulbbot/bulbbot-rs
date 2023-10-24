@@ -1,4 +1,3 @@
-_version: 1
 welcome: Rust I18n Example for share locales in entire workspace.
 hello: Hello world
 messages.hello: Hello, %{name}
