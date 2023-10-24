@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 babelz = { path = "../bulbbot.Babelz" }
+rust-i18n = "2.2.1"

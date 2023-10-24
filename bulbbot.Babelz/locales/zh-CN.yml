@@ -1,0 +1,4 @@
+_version: 1
+welcome: Rust I18n 示例，用于在整个工作区中共享本地化。
+hello: 你好世界
+messages.hello: 你好，%{name}
