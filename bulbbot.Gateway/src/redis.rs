@@ -13,7 +13,16 @@ pub async fn init() -> Result<Connection, ()> {
     .await
     .expect("[STARTUP/REDIS] failed to validate the redis connection url");
 
-    let redis = pool.get().await;
+    let mut redis = pool.get().await;
+
+    let redis_ping = redis.ping().await;
+
+    match redis_ping {
+        Ok(_) => (),
+        Err(err) => {
+            panic!("[STARTUP/REDIS] Redis failed to answer to ping, is anything actually running on that URL? {:#?}", err);
+        }
+    }
 
     Ok(redis.to_owned())
 }
