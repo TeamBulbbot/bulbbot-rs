@@ -40,7 +40,7 @@ impl Handler {
             id: event.id,
             content: event.content,
             guild_id: GuildId(guild_id),
-            author: BulbbotUser::create_user_from_message(&old.expect("'old' is None")),
+            author: BulbbotUser::create_user_from_user(&author),
             channel_id: event.channel_id,
         });
 
