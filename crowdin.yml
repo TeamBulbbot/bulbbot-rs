@@ -1,0 +1,5 @@
+bundles:
+  - 2
+files:
+  - source: /bulbbot.Babelz/locales/en.yml
+    translation: /bulbbot.Babelz/locales/%two_letters_code%.yml
