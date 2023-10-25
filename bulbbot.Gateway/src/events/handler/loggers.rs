@@ -1,4 +1,8 @@
 use crate::events::event_handler::Handler;
+use crate::events::models::log_type::database_column;
+use crate::events::models::log_type::database_column_name;
+use crate::events::models::log_type::LogType;
+use crate::manger_container_structs::DatabaseMangerContainer;
 use crate::manger_container_structs::RedisMangerContainer;
 use serenity::model::id::GuildId;
 use serenity::prelude::Context;
@@ -7,13 +11,6 @@ use std::borrow::BorrowMut;
 use std::str;
 use tracing::error;
 use tracing::log::debug;
-
-#[allow(dead_code)]
-#[derive(Debug)]
-pub enum LogType {
-    MessageUpdate,
-    MessageDelete,
-}
 
 impl Handler {
     pub async fn send_log(
@@ -26,27 +23,56 @@ impl Handler {
         if guild_id.is_none() {
             return Ok(());
         }
+        let guild_id = u64::from(guild_id.unwrap());
 
         let data = ctx.clone();
-        let data_write = data.data.read().await;
+        let data_read = data.data.read().await;
 
-        let mut redis_connection = data_write
+        let mut redis_connection = data_read
             .get::<RedisMangerContainer>()
             .expect("[LOGGER] failed to get the 'RedisMangerContainer'")
             .clone();
         let redis = redis_connection.borrow_mut();
-        let redis_key = format!("{:#?}:{}", log_type, guild_id.unwrap());
+        let redis_key = format!("{}:{}", database_column_name(&log_type), guild_id);
+
+        let db = data_read
+            .get::<DatabaseMangerContainer>()
+            .expect("[LOGGER] failed to get the 'database manager container'")
+            .get()
+            .expect("[LOGGER] the database connection is None");
 
         let channel_id: Option<u64> = match redis.get(&redis_key).await {
             Ok(v) => match v {
                 Some(value) => {
-                    let content = str::from_utf8(&value).expect("Invalid UTF-8 sequence");
-                    Some(content.parse().expect("Failed to convert content to u64"))
+                    let content = str::from_utf8(&value).expect("[LOGGER] Invalid UTF-8 sequence");
+                    Some(
+                        content
+                            .parse()
+                            .expect("[LOGGER] Failed to convert content to u64"),
+                    )
                 }
-                None => None,
+                None => {
+                    let logging = database_column(db, guild_id, &log_type).await;
+
+                    let correct_format = match logging {
+                        Some(c_id) => Some(
+                            c_id.parse::<u64>()
+                                .expect("[LOGGER] Failed to convert 'channel_id' to 'u64'"),
+                        ),
+                        None => None,
+                    };
+
+                    if correct_format.is_some() {
+                        let _ = redis
+                            .set(&redis_key, correct_format.unwrap().to_string())
+                            .await;
+                    }
+
+                    correct_format
+                }
             },
             Err(_) => {
-                error!("Failed to get '{}' from Redis", &redis_key);
+                error!("[LOGGER] Failed to get '{}' from Redis", &redis_key);
                 None
             }
         };
@@ -64,7 +90,7 @@ impl Handler {
             channel_guild.permissions_for_user(&ctx.cache, &ctx.cache.current_user_id())?;
         if !channel_perms.manage_webhooks() {
             debug!(
-                "Missing permission 'manage_webhooks' in channel {} in guild {}",
+                "[LOGGER] Missing permission 'manage_webhooks' in channel {} in guild {}",
                 &channel_id.unwrap(),
                 &channel_guild.guild_id
             );

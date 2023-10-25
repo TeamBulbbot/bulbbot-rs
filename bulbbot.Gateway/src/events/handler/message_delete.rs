@@ -1,6 +1,7 @@
 use crate::{
     events::{
-        event_handler::Handler, handler::loggers::LogType, models::bulbbot_message::BulbbotMessage,
+        event_handler::Handler,
+        models::{bulbbot_message::BulbbotMessage, log_type::LogType},
     },
     manger_container_structs::DatabaseMangerContainer,
 };

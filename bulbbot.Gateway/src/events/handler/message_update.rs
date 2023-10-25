@@ -1,13 +1,12 @@
 use crate::events::event_handler::Handler;
 use crate::events::models::bulbbot_message::{BulbbotMessage, WhatChanged};
 use crate::events::models::bulbbot_user::BulbbotUser;
+use crate::events::models::log_type::LogType;
 use crate::manger_container_structs::DatabaseMangerContainer;
 use serenity::model::channel::Message;
 use serenity::model::prelude::{GuildId, MessageUpdateEvent};
 use serenity::prelude::Context;
 use tracing::log::error;
-
-use super::loggers::LogType;
 
 impl Handler {
     pub async fn handle_message_update(
