@@ -29,19 +29,3 @@ fn main() {
         t!("messages.hello", locale = "zh-HK", name => "Bulbbot",)
     );
 }
-
-/*
-[
-    "en",
-    "zh-CN",
-    "zh-HK",
-]
-Rust I18n Example for share locales in entire workspace.
-Rust I18n 示例，用于在整个工作区中共享本地化。
-Hello world
-你好世界
-Hello world
-Hello, Bulbbot
-你好，Bulbbot
-Hello, Bulbbot
-*/
