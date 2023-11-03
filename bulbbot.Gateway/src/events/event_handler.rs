@@ -96,7 +96,7 @@ impl EventHandler for Handler {
 
     // Dispatched when a user joins a guild.
     async fn guild_member_addition(&self, _ctx: Context, _new_member: Member) {
-        // TODO implement
+        self.handle_guild_member_addition(_ctx, _new_member).await
     }
 
     // Dispatched when a member is updated (e.g their nickname is updated).
@@ -117,7 +117,7 @@ impl EventHandler for Handler {
         _user: User,
         _member_data_if_available: Option<Member>,
     ) {
-        // TODO implement
+        self.handle_guild_member_removal(_ctx, _guild_id, _user, _member_data_if_available).await
     }
 
     // Dispatched when a channel is created.

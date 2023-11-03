@@ -7,7 +7,7 @@ use tokio::sync::OnceCell;
 use tracing::log::{self, info};
 
 pub async fn init() -> Result<OnceCell<DatabaseConnection>, DbErr> {
-    info!("Initializing the the database");
+    info!("Initializing the database");
     let db_connection_url =
         env::var("DATABASE_URL").expect("[ENV] expected 'DATABASE_URL' in the environment");
 
