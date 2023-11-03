@@ -6,6 +6,8 @@ use entity::DatabaseConnection;
 pub enum LogType {
     MessageUpdate,
     MessageDelete,
+    GuildMemberAddition,
+    GuildMemberRemoval,
 }
 
 pub async fn database_column(
@@ -23,6 +25,7 @@ pub async fn database_column(
 
     match log_type {
         LogType::MessageDelete | LogType::MessageUpdate => logging_model.message,
+        LogType::GuildMemberAddition | LogType::GuildMemberRemoval => logging_model.member,
     }
 }
 
@@ -30,5 +33,6 @@ pub async fn database_column(
 pub fn database_column_name(log_type: &LogType) -> String {
     match log_type {
         LogType::MessageDelete | LogType::MessageUpdate => String::from("Message"),
+        LogType::GuildMemberAddition | LogType::GuildMemberRemoval => String::from("Member"),
     }
 }
