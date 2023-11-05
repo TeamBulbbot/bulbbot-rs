@@ -1,3 +1,4 @@
+use crate::constants::ONE_HOUR;
 use crate::events::event_handler::Handler;
 use crate::events::models::log_type::database_column;
 use crate::events::models::log_type::database_column_name;
@@ -64,7 +65,11 @@ impl Handler {
 
                     if correct_format.is_some() {
                         let _ = redis
-                            .set(&redis_key, correct_format.unwrap().to_string())
+                            .set_and_expire_ms(
+                                &redis_key,
+                                correct_format.unwrap().to_string(),
+                                ONE_HOUR,
+                            )
                             .await;
                     }
 
