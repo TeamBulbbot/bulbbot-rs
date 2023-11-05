@@ -3,4 +3,5 @@
 pub use super::guild_configurations::Entity as GuildConfigurations;
 pub use super::guild_loggings::Entity as GuildLoggings;
 pub use super::guilds::Entity as Guilds;
+pub use super::infractions::Entity as Infractions;
 pub use super::messages::Entity as Messages;

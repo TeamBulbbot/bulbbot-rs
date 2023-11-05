@@ -33,7 +33,6 @@ pub enum GuildConfigurations {
     ManualNickNameInfs,
 }
 
-/// Learn more at https://docs.rs/sea-query#iden
 #[derive(Iden)]
 pub enum GuildLoggings {
     Table,
@@ -49,4 +48,18 @@ pub enum GuildLoggings {
     Invite,
     Banpool,
     Other,
+}
+
+#[derive(Iden)]
+pub enum Infractions {
+    Table,
+    GuildId,
+    Action,
+    Reason,
+    Target,
+    TargetId,
+    Moderator,
+    ModeratorId,
+    Timeout,
+    Active,
 }
