@@ -15,6 +15,8 @@ pub enum Relation {
     GuildConfigurations,
     #[sea_orm(has_many = "super::guild_loggings::Entity")]
     GuildLoggings,
+    #[sea_orm(has_many = "super::infractions::Entity")]
+    Infractions,
     #[sea_orm(has_many = "super::messages::Entity")]
     Messages,
 }
@@ -28,6 +30,12 @@ impl Related<super::guild_configurations::Entity> for Entity {
 impl Related<super::guild_loggings::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::GuildLoggings.def()
+    }
+}
+
+impl Related<super::infractions::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Infractions.def()
     }
 }
 

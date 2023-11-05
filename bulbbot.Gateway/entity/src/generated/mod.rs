@@ -5,4 +5,5 @@ pub mod prelude;
 pub mod guild_configurations;
 pub mod guild_loggings;
 pub mod guilds;
+pub mod infractions;
 pub mod messages;
