@@ -79,10 +79,8 @@ impl Handler {
                         "**B:** {}\n**A:** {}",
                         &old.content
                             .clone()
-                            .expect("[EVENT/MESSAGE_UPDATE] failed to unwrawp 'old.content'"),
-                        &new.content
-                            .clone()
-                            .expect("[EVENT/MESSAGE_UPDATE] failed to unwrawp 'new.content'")
+                            .expect("[EVENT/MESSAGE_UPDATE] failed to unwrap 'old.content'"),
+                        &new.content.clone().unwrap_or_else(|| String::new())
                     )
                 }
             };
