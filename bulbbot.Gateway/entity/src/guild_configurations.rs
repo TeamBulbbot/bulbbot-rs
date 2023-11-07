@@ -1,6 +1,6 @@
 pub use crate::generated::guilds::*;
 use crate::{generated::guild_configurations, prelude::GuildConfigurations};
-use sea_orm::{DatabaseConnection, EntityTrait, Set};
+use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Select, Set};
 
 impl ActiveModel {}
 
@@ -18,4 +18,9 @@ impl GuildConfigurations {
             .await
             .unwrap();
     }
+
+    pub fn find_by_guild_id(guild_id: u64) -> Select<Self>{
+        Self::find().filter(guild_configurations::Column::GuildId.eq(guild_id.to_string()))
+    }
 }
+
