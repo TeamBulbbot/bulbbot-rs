@@ -27,7 +27,7 @@ impl Handler {
 
         let auto_role = guild_config.unwrap().unwrap().auto_role;
 
-        if new_member.communication_disabled_until.is_none() && !auto_role.is_none() {
+        if !new_member.pending && !auto_role.is_none() {
             let auto_role_id = auto_role.unwrap().parse::<u64>().unwrap();
 
             if let Err(_) = new_member.add_role(&ctx.http, RoleId(auto_role_id)).await
