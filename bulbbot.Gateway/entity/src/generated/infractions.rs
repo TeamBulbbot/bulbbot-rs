@@ -7,7 +7,7 @@ use sea_orm::entity::prelude::*;
 pub struct Model {
     pub guild_id: String,
     #[sea_orm(primary_key, auto_increment = true)]
-    pub inf_id: String,
+    pub inf_id: i32,
     pub action: String,
     pub reason: String,
     pub target: String,
@@ -15,7 +15,6 @@ pub struct Model {
     pub moderator: String,
     pub moderator_id: String,
     pub timeout: Option<String>,
-    pub active: Option<bool>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

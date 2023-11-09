@@ -1,6 +1,6 @@
 pub use crate::generated::infractions::*;
 use crate::generated::prelude::Infractions;
-use sea_orm::{DatabaseConnection, DbErr, EntityTrait, InsertResult, Set};
+use sea_orm::{DatabaseConnection, DbErr, EntityTrait, Set};
 use serenity::model::user::User;
 
 impl ActiveModel {}
@@ -14,7 +14,7 @@ impl Infractions {
         target: User,
         moderator: User,
         timeout: Option<String>,
-    ) -> Result<InsertResult<ActiveModel>, DbErr> {
+    ) -> Result<Model, DbErr> {
         let infraction = ActiveModel {
             guild_id: Set(guild_id.to_string()),
             action: Set(action),
@@ -27,6 +27,6 @@ impl Infractions {
             ..Default::default()
         };
 
-        Self::insert(infraction).exec(db).await
+        Self::insert(infraction).exec_with_returning(db).await
     }
 }
