@@ -54,6 +54,7 @@ pub enum GuildLoggings {
 pub enum Infractions {
     Table,
     GuildId,
+    InfId,
     Action,
     Reason,
     Target,
@@ -61,5 +62,4 @@ pub enum Infractions {
     Moderator,
     ModeratorId,
     Timeout,
-    Active,
 }

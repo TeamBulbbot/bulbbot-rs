@@ -1,6 +1,5 @@
-use sea_orm_migration::prelude::*;
-
 use crate::models::{Guilds, Infractions};
+use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -16,7 +15,6 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(Infractions::GuildId)
                             .string()
                             .not_null()
-                            .primary_key(),
                     )
                     .foreign_key(
                         ForeignKey::create()
@@ -24,6 +22,7 @@ impl MigrationTrait for Migration {
                             .from(Infractions::Table, Infractions::GuildId)
                             .to(Guilds::Table, Guilds::GuildId),
                     )
+                    .col(ColumnDef::new(Infractions::InfId).not_null().auto_increment().integer().primary_key())
                     .col(ColumnDef::new(Infractions::Action).not_null().string())
                     .col(ColumnDef::new(Infractions::Reason).not_null().string())
                     .col(
@@ -51,7 +50,6 @@ impl MigrationTrait for Migration {
                             .string_len(20),
                     )
                     .col(ColumnDef::new(Infractions::Timeout).string())
-                    .col(ColumnDef::new(Infractions::Active).boolean())
                     .to_owned(),
             )
             .await

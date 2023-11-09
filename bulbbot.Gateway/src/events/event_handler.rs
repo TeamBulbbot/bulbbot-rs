@@ -106,7 +106,7 @@ impl EventHandler for Handler {
         _old_if_available: Option<Member>,
         _new: Member,
     ) {
-        // TODO implement
+        self.handle_guild_member_update(_ctx, _old_if_available, _new).await
     }
 
     // Dispatched when a user's membership ends by leaving, getting kicked, or being banned.

@@ -5,8 +5,9 @@ use sea_orm::entity::prelude::*;
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
 #[sea_orm(table_name = "infractions")]
 pub struct Model {
-    #[sea_orm(primary_key, auto_increment = false)]
     pub guild_id: String,
+    #[sea_orm(primary_key, auto_increment = true)]
+    pub inf_id: String,
     pub action: String,
     pub reason: String,
     pub target: String,
