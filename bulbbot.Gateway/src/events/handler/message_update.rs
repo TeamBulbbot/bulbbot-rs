@@ -29,6 +29,10 @@ impl Handler {
             Some(author) => author,
         };
 
+        if author.id == ctx.cache.current_user().id {
+            return;
+        }
+
         let db = data_read
             .get::<DatabaseMangerContainer>()
             .expect("[EVENT/MESSAGE_UPDATE] failed to get the 'database manager container'")

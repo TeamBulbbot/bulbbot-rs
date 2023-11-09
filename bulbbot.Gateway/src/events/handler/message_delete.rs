@@ -39,6 +39,10 @@ impl Handler {
             }
         };
 
+        if msg.author.id == ctx.cache.current_user().id {
+            return;
+        }
+
         let log_message = String::from(format!(
             "Message from **{}** `({})` has been deleted in <#{}>\n**Message Id:** `{}`\n**Channel Id:** `{}`\n**Content:** {}",
             msg.author.username,
