@@ -14,4 +14,6 @@ sea-orm-migration = { version = "0.10.6", features = [
     "runtime-tokio-rustls",
     "sqlx-postgres",
 ] }
-entity = { path = "../entity" }
+
+[target.'cfg(unix)'.dependencies]
+openssl = { version = "0.10", features = ["vendored"] }
