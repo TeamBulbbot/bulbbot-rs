@@ -1,7 +1,7 @@
 use crate::events::event_handler::Handler;
 use crate::events::models::log_type::LogType;
+use serenity::all::GuildId;
 use serenity::client::Context;
-use serenity::model::id::GuildId;
 use serenity::model::prelude::Member;
 use tracing::error;
 
@@ -25,12 +25,12 @@ impl Handler {
             .send_log(
                 &ctx,
                 &log_message,
-                Some(GuildId(guild_id)),
+                Some(GuildId::new(guild_id)),
                 LogType::GuildMemberAddition,
             )
             .await
         {
-            error!("Guild Id: {:#?} {:#?}", GuildId(guild_id), why)
+            error!("Guild Id: {:#?} {:#?}", GuildId::new(guild_id), why)
         }
     }
 }

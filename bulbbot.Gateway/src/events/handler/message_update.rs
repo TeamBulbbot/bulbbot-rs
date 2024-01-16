@@ -39,7 +39,7 @@ impl Handler {
         let new_message = Some(BulbbotMessage {
             id: event.id,
             content: event.content,
-            guild_id: GuildId(guild_id),
+            guild_id: GuildId::new(guild_id),
             author: BulbbotUser::create_user_from_user(&author),
             channel_id: event.channel_id,
         });
@@ -92,12 +92,12 @@ impl Handler {
             .send_log(
                 &ctx,
                 &log_message,
-                Some(GuildId(guild_id)),
+                Some(GuildId::new(guild_id)),
                 LogType::MessageUpdate,
             )
             .await
         {
-            error!("Guild id: {:#?} {:#?}", GuildId(guild_id), why);
+            error!("Guild id: {:#?} {:#?}", GuildId::new(guild_id), why);
         }
     }
 }
