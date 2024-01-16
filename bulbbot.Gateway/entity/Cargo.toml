@@ -15,13 +15,12 @@ sea-orm = { version = "0.11.0", features = [
     "with-json",
     "postgres-array",
 ] }
-serenity = { version = "0.11.5", default-features = false, features = [
+serenity = { version = "0.12.0", default-features = false, features = [
     "client",
     "cache",
     "builder",
     "collector",
     "model",
-    "time",
     "utils",
     "unstable_discord_api",
     "rustls_backend",

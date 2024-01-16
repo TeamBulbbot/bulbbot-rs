@@ -47,12 +47,12 @@ impl BulbbotMessage {
                 let m = msg.unwrap();
 
                 BulbbotMessage {
-                    id: MessageId(m.message_id.parse().unwrap()),
-                    channel_id: ChannelId(m.channel_id.parse().unwrap()),
+                    id: MessageId::new(m.message_id.parse().unwrap()),
+                    channel_id: ChannelId::new(m.channel_id.parse().unwrap()),
                     content: m.content,
-                    guild_id: GuildId(m.guild_id.parse().unwrap()),
+                    guild_id: GuildId::new(m.guild_id.parse().unwrap()),
                     author: BulbbotUser {
-                        id: UserId(m.author_id.parse().unwrap()),
+                        id: UserId::new(m.author_id.parse().unwrap()),
                         username: m.author_tag,
                     },
                 }

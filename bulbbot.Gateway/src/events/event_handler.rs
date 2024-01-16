@@ -1,12 +1,11 @@
+use serenity::all::GuildMemberUpdateEvent;
 use serenity::async_trait;
-use serenity::client::bridge::gateway::event::ShardStageUpdateEvent;
-use serenity::json::Value;
+use serenity::gateway::ShardStageUpdateEvent;
 use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
 use serenity::model::prelude::{
-    Channel, ChannelCategory, ChannelId, Guild, GuildChannel, GuildId, InviteCreateEvent,
-    InviteDeleteEvent, Member, MessageId, MessageUpdateEvent, PartialGuild, ResumedEvent, Role,
-    RoleId, UnavailableGuild,
+    ChannelId, Guild, GuildChannel, GuildId, InviteCreateEvent, InviteDeleteEvent, Member,
+    MessageId, MessageUpdateEvent, PartialGuild, ResumedEvent, Role, RoleId, UnavailableGuild,
 };
 use serenity::model::user::User;
 use serenity::prelude::{Context, EventHandler};
@@ -17,12 +16,6 @@ pub struct Handler;
 // https://docs.rs/serenity/0.11.5/serenity/prelude/trait.EventHandler.html
 #[async_trait]
 impl EventHandler for Handler {
-    // Dispatched when an unknown event was sent from discord.
-    async fn unknown(&self, _ctx: Context, name: String, _raw: Value) {
-        //! Might not need
-        println!("unknown event -> {}", name)
-    }
-
     // Dispatched upon startup.
     async fn ready(&self, ctx: Context, ready: Ready) {
         self.handle_ready(ctx, ready).await
@@ -39,7 +32,7 @@ impl EventHandler for Handler {
     }
 
     // Dispatched when a guild is created;
-    async fn guild_create(&self, _ctx: Context, _guild: Guild, _is_new: bool) {
+    async fn guild_create(&self, _ctx: Context, _guild: Guild, _is_new: Option<bool>) {
         // TODO implement
     }
 
@@ -60,11 +53,6 @@ impl EventHandler for Handler {
         _incomplete: UnavailableGuild,
         _full: Option<Guild>,
     ) {
-        // TODO implement
-    }
-
-    // Dispatched when a guild became unavailable.
-    async fn guild_unavailable(&self, _ctx: Context, _guild_id: GuildId) {
         // TODO implement
     }
 
@@ -99,12 +87,13 @@ impl EventHandler for Handler {
         self.handle_guild_member_addition(_ctx, _new_member).await
     }
 
-    // Dispatched when a member is updated (e.g their nickname is updated).
+    /// Dispatched when a member is updated (e.g their nickname is updated).
     async fn guild_member_update(
         &self,
         _ctx: Context,
         _old_if_available: Option<Member>,
-        _new: Member,
+        _new: Option<Member>,
+        _event: GuildMemberUpdateEvent,
     ) {
         // TODO implement
     }
@@ -117,31 +106,37 @@ impl EventHandler for Handler {
         _user: User,
         _member_data_if_available: Option<Member>,
     ) {
-        self.handle_guild_member_removal(_ctx, _guild_id, _user, _member_data_if_available).await
+        self.handle_guild_member_removal(_ctx, _guild_id, _user, _member_data_if_available)
+            .await
     }
 
     // Dispatched when a channel is created.
-    async fn channel_create(&self, _ctx: Context, _channel: &GuildChannel) {
+    async fn channel_create(&self, _ctx: Context, _channel: GuildChannel) {
         // TODO implement
     }
 
     // Dispatched when a channel is updated.
-    async fn channel_update(&self, _ctx: Context, _old: Option<Channel>, _new: Channel) {
+    async fn channel_update(&self, _ctx: Context, _old: Option<GuildChannel>, _new: GuildChannel) {
         // TODO implement
     }
 
     // Dispatched when a channel is deleted.
-    async fn channel_delete(&self, _ctx: Context, _channel: &GuildChannel) {
+    async fn channel_delete(
+        &self,
+        _ctx: Context,
+        _channel: GuildChannel,
+        _messages: Option<Vec<Message>>,
+    ) {
         // TODO implement
     }
 
     // Dispatched when a category is created.
-    async fn category_create(&self, _ctx: Context, _category: &ChannelCategory) {
+    async fn category_create(&self, _ctx: Context, _category: GuildChannel) {
         // TODO implement
     }
 
     // Dispatched when a category is deleted.
-    async fn category_delete(&self, _ctx: Context, _category: &ChannelCategory) {
+    async fn category_delete(&self, _ctx: Context, _category: GuildChannel) {
         // TODO implement
     }
 
