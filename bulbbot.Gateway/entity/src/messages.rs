@@ -3,7 +3,7 @@ use crate::generated::{messages, prelude::Messages};
 use sea_orm::{
     ColumnTrait, DatabaseConnection, DbErr, EntityTrait, InsertResult, QueryFilter, Set,
 };
-use serenity::model::prelude::Message;
+use serenity::all::Message;
 
 impl ActiveModel {}
 

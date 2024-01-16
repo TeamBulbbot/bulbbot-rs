@@ -5,6 +5,11 @@ use crate::events::models::log_type::database_column_name;
 use crate::events::models::log_type::LogType;
 use crate::manger_container_structs::DatabaseMangerContainer;
 use crate::manger_container_structs::RedisMangerContainer;
+use serenity::all::ChannelId;
+use serenity::builder::CreateAllowedMentions;
+use serenity::builder::CreateAttachment;
+use serenity::builder::CreateWebhook;
+use serenity::builder::ExecuteWebhook;
 use serenity::model::id::GuildId;
 use serenity::prelude::Context;
 use serenity::prelude::SerenityError;
@@ -86,13 +91,16 @@ impl Handler {
             return Ok(());
         }
 
-        let channel = ctx.http.get_channel(channel_id.unwrap()).await?;
+        let channel = ctx
+            .http
+            .get_channel(ChannelId::new(channel_id.unwrap()))
+            .await?;
         let channel_guild = channel
             .guild()
             .expect("[LOGGER] failed to get guild on 'channel_guild'");
 
         let channel_perms =
-            channel_guild.permissions_for_user(&ctx.cache, &ctx.cache.current_user_id())?;
+            channel_guild.permissions_for_user(&ctx.cache, &ctx.cache.current_user().id)?;
         if !channel_perms.manage_webhooks() {
             debug!(
                 "[LOGGER] Missing permission 'manage_webhooks' in channel {} in guild {}",
@@ -106,22 +114,31 @@ impl Handler {
         let webhook = match channel_webhooks.first() {
             Some(hook) => hook.clone(),
             None => channel_guild
-                .create_webhook_with_avatar(
+                .create_webhook(
                     &ctx.http,
-                    "Bulbbot",
-                    "https://github.com/TeamBulbbot/bulbbot/blob/master/assets/Logo.png?raw=true",
+                    CreateWebhook::new("Bullbot").avatar(&CreateAttachment::url(
+                            &ctx.http,
+                            "https://github.com/TeamBulbbot/bulbbot/blob/master/assets/Logo.png?raw=true"
+
+
+                    ).await.unwrap()),
                 )
                 .await?,
         };
 
-        webhook
-            .execute(&ctx.http, true, |w| {
-                w.content(log_message)
-                .avatar_url("https://github.com/TeamBulbbot/bulbbot/blob/master/assets/Logo.png?raw=true")
-                .username(format!("Bulbbot - {:#?}", log_type))
-                    .allowed_mentions(|f| f.empty_parse().replied_user(false))
-            })
-            .await?;
+        let builder = ExecuteWebhook::new()
+            .content(log_message)
+            .avatar_url(
+                "https://github.com/TeamBulbbot/bulbbot/blob/master/assets/Logo.png?raw=true",
+            )
+            .username(format!("Bulbbot - {:#?}", log_type))
+            .allowed_mentions(
+                CreateAllowedMentions::new()
+                    .replied_user(false)
+                    .empty_roles()
+                    .empty_users(),
+            );
+        webhook.execute(&ctx.http, false, builder).await?;
 
         Ok(())
     }

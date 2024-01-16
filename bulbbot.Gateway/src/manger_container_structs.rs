@@ -1,13 +1,12 @@
 use darkredis::Connection;
 use entity::DatabaseConnection;
-use serenity::client::bridge::gateway::ShardManager;
-use serenity::prelude::{Mutex, TypeMapKey};
+use serenity::{gateway::ShardManager, prelude::TypeMapKey};
 use std::sync::Arc;
 use tokio::sync::OnceCell;
 
 pub struct ShardManagerContainer;
 impl TypeMapKey for ShardManagerContainer {
-    type Value = Arc<Mutex<ShardManager>>;
+    type Value = Arc<ShardManager>;
 }
 
 pub struct RedisMangerContainer;
