@@ -9,9 +9,11 @@ name = "migration"
 path = "src/lib.rs"
 
 [dependencies]
-tokio = { version = "1.35.0", features = ["macros"] }
+tokio = { version = "1.35.0", features = ["full", "macros", "rt-multi-thread"] }
 sea-orm-migration = { version = "0.12.10", features = [
     "runtime-tokio-rustls",
     "sqlx-postgres",
 ] }
-entity = { path = "../entity" }
+
+[target.'cfg(unix)'.dependencies]
+openssl = { version = "0.10", features = ["vendored"] }

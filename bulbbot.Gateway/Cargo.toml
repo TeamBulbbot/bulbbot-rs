@@ -33,3 +33,6 @@ dotenv = "0.15.0"
 darkredis = "0.8.0"
 migration = { path = "./migration" }
 entity = { path = "./entity" }
+
+[target.'cfg(unix)'.dependencies]
+openssl = { version = "0.10", features = ["vendored"] }

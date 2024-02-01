@@ -27,7 +27,7 @@ async fn main() {
         env!("CARGO_PKG_REPOSITORY")
     );
 
-    dotenv().ok().expect("[ENV] failed to load .env");
+    dotenv().ok();
 
     let redis = redis::init()
         .await
