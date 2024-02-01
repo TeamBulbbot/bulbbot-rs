@@ -4,7 +4,7 @@ RUN rustup target add x86_64-unknown-linux-musl
 RUN apt update && apt install -y musl-tools musl-dev
 RUN update-ca-certificates
 
-ENV USER=commands
+ENV USER=migration
 ENV UID=10001
 
 RUN adduser \
@@ -16,8 +16,7 @@ RUN adduser \
     --uid "${UID}" \
     "${USER}"
 
-
-WORKDIR /commands
+WORKDIR /migration
 
 COPY ./ .
 
@@ -29,10 +28,8 @@ COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-WORKDIR /commands
+WORKDIR /migration
 
-COPY --from=builder /commands/target/x86_64-unknown-linux-musl/release/commands ./
+COPY --from=builder /migration/target/x86_64-unknown-linux-musl/release/migration ./
 
-EXPOSE 8080
-
-CMD ["/commands/commands"]
+CMD ["/migration/migration"]

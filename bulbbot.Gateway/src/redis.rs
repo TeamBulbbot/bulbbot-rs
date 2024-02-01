@@ -7,7 +7,11 @@ pub async fn init() -> Result<Connection, ()> {
         env::var("REDIS_URL")
             .expect("[ENV] expected 'REDIS_URL' in the environment")
             .into(),
-        None,
+        Some(
+            env::var("REDIS_PASSWORD")
+                .expect("[ENV] expected 'REDIS_PASSWORD' in the environment")
+                .as_str(),
+        ),
         16,
     )
     .await

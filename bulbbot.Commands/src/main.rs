@@ -48,6 +48,7 @@ async fn interaction(request: HttpRequest, req_body: String) -> impl Responder {
     }
 
     if interaction.interaction_type == InteractionType::ApplicationCommand {
+
         let interaction_data = match interaction.data {
             Some(data) => data,
             None => return HttpResponse::BadRequest().body("Bad request"),
@@ -64,8 +65,10 @@ async fn interaction(request: HttpRequest, req_body: String) -> impl Responder {
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
+    println!("[+] Starting server on 127.0.0.1:8080");
+
     HttpServer::new(|| App::new().service(interaction))
-        .bind(("127.0.0.1", 8080))?
+        .bind(("0.0.0.0", 8080))?
         .run()
         .await
 }

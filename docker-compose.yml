@@ -1,0 +1,58 @@
+version: "3"
+services:
+  commands:
+    build: /bulbbot.Commands
+    restart: always
+    ports:
+      - "8080:8080"
+    env_file:
+      - dev.env
+    depends_on:
+      - redis
+      - database
+
+  gateway-migration:
+    build: /bulbbot.Gateway/migration
+    depends_on:
+      - database
+    env_file:
+      - dev.env
+    
+  gateway:
+    build: /bulbbot.Gateway
+    restart: always
+    depends_on:
+      - gateway-migration
+      - redis
+      - database
+    env_file:
+      - dev.env
+
+  database:
+    image: postgres
+    restart: always
+    env_file:
+      - dev.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgbulbbot:/var/lib/postgresql/data
+
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    env_file:
+      - dev.env
+    command: 
+      - /bin/sh
+      - -c
+      - redis-server --save 20 1 --loglevel warning --requirepass "$${REDIS_PASSWORD:?REDIS_PASSWORD variable is not set}"
+    volumes: 
+      - redis:/data
+
+volumes:
+  pgbulbbot:
+  redis:
+    driver: local
