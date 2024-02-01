@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 hex = "0.4.3"
-ed25519-dalek = "1.0.1"
+ed25519-dalek = "2.0.0"
 serde = { version = "1.0.152", features = ["derive"] }
 serde_repr = "0.1.10"
 serde_json = "1.0.67"
