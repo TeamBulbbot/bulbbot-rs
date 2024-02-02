@@ -2,16 +2,16 @@ use darkredis::{Connection, ConnectionPool};
 use std::env;
 
 pub async fn init() -> Result<Connection, ()> {
-    //  sudo service redis-server start
+    let redis_password = match env::var("REDIS_PASSWORD") {
+        Ok(psw) => Some(psw),
+        Err(_) => None,
+    };
+
     let pool = ConnectionPool::create(
         env::var("REDIS_URL")
             .expect("[ENV] expected 'REDIS_URL' in the environment")
             .into(),
-        Some(
-            env::var("REDIS_PASSWORD")
-                .expect("[ENV] expected 'REDIS_PASSWORD' in the environment")
-                .as_str(),
-        ),
+        redis_password.as_deref(),
         16,
     )
     .await
