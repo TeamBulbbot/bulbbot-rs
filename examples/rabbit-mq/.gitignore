@@ -1,0 +1,4 @@
+/target
+*.env
+/consumer/node_modules
+/consumer/yarn-*.log

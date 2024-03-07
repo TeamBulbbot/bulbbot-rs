@@ -1,4 +1,5 @@
 use crate::events::event_handler::Handler;
+use crate::events::models::log_type::{self, LogType};
 use crate::manger_container_structs::DatabaseMangerContainer;
 use entity::prelude::{Guilds, Messages};
 use serenity::model::channel::Message;
@@ -32,14 +33,19 @@ impl Handler {
             None => Guilds::create_guild(&db, guild_id).await,
         };
 
-        let inserted_message = match Messages::insert_message(&db, &msg, guild_id).await {
+        let message_logging =
+            log_type::database_column(&db, guild_id, &LogType::MessageDelete).await;
+
+        if message_logging.is_none() {
+            return;
+        }
+
+        match Messages::insert_message(&db, &msg, guild_id).await {
             Ok(result) => result,
             Err(err) => {
                 error!("Database insert error on 'Messages::insert_message': {:#?} in guild {} and message id {}", &err, &guild_id, &msg.id);
                 return;
             }
         };
-
-        info!("inserted_message {:#?}", inserted_message);
     }
 }
