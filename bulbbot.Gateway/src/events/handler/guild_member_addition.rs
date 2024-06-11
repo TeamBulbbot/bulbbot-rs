@@ -20,17 +20,5 @@ impl Handler {
             )
                 .as_str()
         );
-
-        if let Err(why) = self
-            .send_log(
-                &ctx,
-                &log_message,
-                Some(GuildId::new(guild_id)),
-                LogType::GuildMemberAddition,
-            )
-            .await
-        {
-            error!("Guild Id: {:#?} {:#?}", GuildId::new(guild_id), why)
-        }
     }
 }

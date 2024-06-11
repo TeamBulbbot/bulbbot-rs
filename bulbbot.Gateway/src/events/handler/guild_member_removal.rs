@@ -38,17 +38,5 @@ impl Handler {
             )
             .as_str(),
         );
-
-        if let Err(why) = self
-            .send_log(
-                &ctx,
-                &log_message,
-                Some(guild_id),
-                LogType::GuildMemberRemoval,
-            )
-            .await
-        {
-            error!("Guild Id: {:#?} {:#?}", guild_id, why)
-        }
     }
 }

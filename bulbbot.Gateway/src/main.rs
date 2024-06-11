@@ -1,14 +1,9 @@
-mod constants;
-mod database;
 mod events;
 mod manger_container_structs;
-mod redis;
 
 use dotenv::dotenv;
 use events::event_handler::Handler;
-use manger_container_structs::{
-    DatabaseMangerContainer, RedisMangerContainer, ShardManagerContainer,
-};
+use manger_container_structs::ShardManagerContainer;
 use serenity::prelude::*;
 use std::env;
 use tracing::log::{error, info};
@@ -28,14 +23,6 @@ async fn main() {
     );
 
     dotenv().ok();
-
-    let redis = redis::init()
-        .await
-        .expect("[STARTUP/REDIS] failed to setup redis");
-
-    let database = database::init()
-        .await
-        .expect("[STARTUP/DATABASE] failed to setup the database");
 
     let intents = GatewayIntents::GUILDS
         | GatewayIntents::GUILD_MEMBERS
@@ -57,9 +44,17 @@ async fn main() {
     {
         let mut data = client.data.write().await;
         data.insert::<ShardManagerContainer>(client.shard_manager.clone());
-        data.insert::<RedisMangerContainer>(redis.clone());
-        data.insert::<DatabaseMangerContainer>(database);
     }
+
+    let shard_manager = client.shard_manager.clone();
+
+    tokio::spawn(async move {
+        tokio::signal::ctrl_c()
+            .await
+            .expect("Could not register ctrl+c handler");
+
+        shard_manager.shutdown_all().await;
+    });
 
     if let Err(why) = client.start().await {
         error!("Client error: {:#?}", why);
