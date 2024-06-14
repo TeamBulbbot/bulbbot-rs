@@ -1,19 +1,27 @@
 mod events;
 mod manger_container_structs;
+mod rabbit_mq;
 
+use actix_web::{get, App, HttpResponse, HttpServer, Responder};
 use dotenv::dotenv;
 use events::event_handler::Handler;
-use lapin::{
-    options::*, publisher_confirm::Confirmation, types::FieldTable, BasicProperties, Connection,
-    ConnectionProperties, Result,
-};
-use manger_container_structs::ShardManagerContainer;
+use manger_container_structs::{RabbitMQMangerContainer, ShardManagerContainer};
 use serenity::prelude::*;
 use std::env;
 use tracing::log::{error, info};
 
+#[get("/health")]
+async fn hello() -> impl Responder {
+    HttpResponse::Ok().body("Healthy!")
+}
+
 #[tokio::main]
 async fn main() {
+    let server_port = env::var("SERVER_PORT")
+        .unwrap_or(String::from("8080"))
+        .parse::<u16>()
+        .expect("Invalid server port");
+
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::INFO)
         .with_test_writer()
@@ -37,65 +45,23 @@ async fn main() {
         | GatewayIntents::GUILD_MESSAGES
         | GatewayIntents::MESSAGE_CONTENT;
 
-    let token =
-        env::var("DISCORD_TOKEN").expect("[ENV] expected 'DISCORD_TOKEN' in the environment");
+    let mut client = Client::builder(
+        env::var("DISCORD_TOKEN").expect("[ENV] expected 'DISCORD_TOKEN' in the environment"),
+        intents,
+    )
+    .event_handler(Handler)
+    .await
+    .expect("[STARTUP] error creating client");
 
-    let mut client = Client::builder(token, intents)
-        .event_handler(Handler)
-        .await
-        .expect("[STARTUP] error creating client");
+    let (rabbit_mq, rabbit_mq_channel) = rabbit_mq::connect().await;
 
     {
         let mut data = client.data.write().await;
         data.insert::<ShardManagerContainer>(client.shard_manager.clone());
+        data.insert::<RabbitMQMangerContainer>(rabbit_mq_channel.clone());
     }
 
     let shard_manager = client.shard_manager.clone();
-
-    let rabbit_mq_addr = format!(
-        "amqp://{}:{}@{}",
-        std::env::var("RABBIT_MQ_USERNAME").unwrap_or(String::from("guest")),
-        std::env::var("RABBIT_MQ_PASSWORD").unwrap_or(String::from("guest")),
-        std::env::var("RABBIT_MQ_URL").unwrap_or(String::from("localhost:5672"))
-    );
-
-    let rabbit_mq = Connection::connect(&rabbit_mq_addr, ConnectionProperties::default())
-        .await
-        .expect("Failed to connect to RabbitMQ server");
-
-    info!(
-        "Connect to RabbitMQ - Status:{:#?} (via {:#?})",
-        &rabbit_mq.status().state(),
-        &rabbit_mq.status().username()
-    );
-
-    let rabbit_mq_channel = rabbit_mq
-        .create_channel()
-        .await
-        .expect("Failed to create RabbitMQ channel");
-
-    let _rabbit_mq_queue = rabbit_mq_channel
-        .queue_declare(
-            "bulbbot.gateway",
-            QueueDeclareOptions::default(),
-            FieldTable::default(),
-        )
-        .await
-        .expect("Failed to declare queue");
-
-    let payload = b"Hello world!";
-    let confirm = rabbit_mq_channel
-        .basic_publish(
-            "",
-            "bulbbot.gateway",
-            BasicPublishOptions::default(),
-            payload,
-            BasicProperties::default(),
-        )
-        .await
-        .unwrap()
-        .await
-        .unwrap();
 
     tokio::spawn(async move {
         tokio::signal::ctrl_c()
@@ -112,6 +78,16 @@ async fn main() {
             .close(200, "Normal shutdown")
             .await
             .expect("Failed to close Rabbit MQ connection");
+    });
+
+    tokio::spawn(async move {
+        info!("Running http server on localhost:{}", server_port);
+        HttpServer::new(|| App::new().service(hello))
+            .bind(("127.0.0.1", server_port))
+            .expect("Failed to bind to localhost:8080")
+            .run()
+            .await
+            .expect("Failed to start server");
     });
 
     if let Err(why) = client.start().await {
