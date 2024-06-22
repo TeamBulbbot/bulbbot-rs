@@ -1,0 +1,6 @@
+-- Your SQL goes here
+CREATE TABLE guilds (
+  id BIGINT PRIMARY KEY,
+  premium BOOLEAN NOT NULL DEFAULT FALSE,
+  developer BOOLEAN NOT NULL DEFAULT FALSE
+)

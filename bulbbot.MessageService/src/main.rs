@@ -19,7 +19,7 @@ async fn main() {
     dotenv().ok();
 
     let server_port = env::var("SERVER_PORT")
-        .unwrap_or(String::from("8080"))
+        .unwrap_or(String::from("3521"))
         .parse::<u16>()
         .expect("Invalid server port");
 
