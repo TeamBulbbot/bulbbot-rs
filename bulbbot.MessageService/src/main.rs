@@ -1,11 +1,13 @@
 mod app_config;
+mod database;
+mod dto;
 mod handlers;
+mod http_client;
 mod models;
 
-use actix_web::{get, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, middleware, web, App, HttpResponse, HttpServer, Responder};
 use app_config::config_app;
 use dotenv::dotenv;
-use serenity::prelude::*;
 use std::env;
 use tracing::log::info;
 
@@ -35,27 +37,21 @@ async fn main() {
         env!("CARGO_PKG_REPOSITORY")
     );
 
-    let intents = GatewayIntents::GUILDS
-        | GatewayIntents::GUILD_MEMBERS
-        | GatewayIntents::GUILD_MODERATION
-        | GatewayIntents::GUILD_INVITES
-        | GatewayIntents::GUILD_VOICE_STATES
-        | GatewayIntents::GUILD_SCHEDULED_EVENTS
-        | GatewayIntents::GUILD_MESSAGES
-        | GatewayIntents::MESSAGE_CONTENT;
-
-    let client = Client::builder(
-        env::var("DISCORD_TOKEN").expect("[ENV] expected 'DISCORD_TOKEN' in the environment"),
-        intents,
-    )
-    .await
-    .expect("[STARTUP] error creating client");
+    let db_pool = database::establish_connection();
+    let http_client = http_client::HttpClient::init();
 
     info!("Running http server on localhost:{}", server_port);
-    HttpServer::new(|| App::new().configure(config_app).service(health))
-        .bind(("127.0.0.1", server_port))
-        .expect(&format!("Failed to bind to localhost:{}", server_port))
-        .run()
-        .await
-        .expect("Failed to start server");
+    HttpServer::new(move || {
+        App::new()
+            .app_data(web::Data::new(http_client.clone()))
+            .app_data(web::Data::new(db_pool.clone()))
+            .wrap(middleware::Logger::default())
+            .configure(config_app)
+            .service(health)
+    })
+    .bind(("127.0.0.1", server_port))
+    .expect(&format!("Failed to bind to localhost:{}", server_port))
+    .run()
+    .await
+    .expect("Failed to start server");
 }

@@ -1,4 +1,4 @@
-use crate::models::event_type::EventType;
+use crate::{database::DbPool, http_client::HttpClient, models::event_type::EventType};
 use actix_web::{http::Error, web, HttpResponse};
 use serde::{Deserialize, Serialize};
 use serenity::model::channel::Message;
@@ -13,8 +13,18 @@ pub struct MessageCommand {
     pub content: Message,
 }
 
-pub async fn add_message(content: web::Json<MessageCommand>) -> Result<HttpResponse, Error> {
-    println!("{:#?}", content);
+pub async fn add_message(
+    pool: web::Data<DbPool>,
+    http_client: web::Data<HttpClient>,
+    content: web::Json<MessageCommand>,
+) -> Result<HttpResponse, Error> {
+    let response = http_client
+        .get_guild(content.content.guild_id.unwrap())
+        .await;
+
+    if response.logging.message.is_none() {
+        return Ok(HttpResponse::Ok().finish());
+    }
 
     Ok(HttpResponse::Ok().finish())
 }

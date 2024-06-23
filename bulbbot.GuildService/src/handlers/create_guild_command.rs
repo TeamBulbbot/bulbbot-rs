@@ -4,7 +4,7 @@ use crate::models::logging::{Logging, NewLogging};
 use crate::schema::guilds::dsl::*;
 use crate::schema::logging::dsl::*;
 use actix_web::{web, HttpResponse, Responder};
-use diesel::{BelongingToDsl, ExpressionMethods, GroupedBy, QueryDsl, RunQueryDsl};
+use diesel::{BelongingToDsl, ExpressionMethods, QueryDsl, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
