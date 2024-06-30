@@ -1,6 +1,5 @@
 use crate::models::event::Event;
 use crate::models::event_type::EventType;
-use opentelemetry::global::BoxedSpan;
 use opentelemetry::trace::{Span, Tracer, TracerProvider};
 use opentelemetry::{global, Context};
 use reqwest::Client;
@@ -50,7 +49,10 @@ impl Handler {
 
         let event_response = match event.event {
             EventType::Message => self.handle_message_event(event_data, &mut span, cx).await,
-            EventType::MessageDelete => self.handle_message_delete_event(event_data).await,
+            EventType::MessageDelete => {
+                self.handle_message_delete_event(event_data, &mut span, cx)
+                    .await
+            }
             _ => false, /*
                         EventType::MessageUpdate => todo!(),
                         EventType::MessageDelete => todo!(),

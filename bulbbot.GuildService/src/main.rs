@@ -3,10 +3,12 @@ mod database;
 mod extractor;
 mod handlers;
 mod injector;
+mod middleware;
 mod models;
 mod schema;
 
-use actix_web::{get, middleware, web, App, HttpResponse, HttpServer, Responder};
+use crate::middleware::telemetry::Telemetry;
+use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use app_config::config_app;
 use dotenv::dotenv;
 use opentelemetry::global;
@@ -64,7 +66,8 @@ async fn main() {
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(db_pool.clone()))
-            .wrap(middleware::Logger::default())
+            .wrap(actix_web::middleware::Logger::default())
+            .wrap(Telemetry)
             .configure(config_app)
             .service(health)
     })

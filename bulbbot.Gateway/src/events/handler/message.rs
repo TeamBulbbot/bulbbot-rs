@@ -40,6 +40,7 @@ impl Handler {
             msg.guild_id.unwrap_or_else(|| GuildId::new(1)).to_string(),
         ));
         span.set_attribute(KeyValue::new("channel_id", msg.channel_id.to_string()));
+        span.set_attribute(KeyValue::new("message_id", msg.id.to_string()));
         span.set_attribute(KeyValue::new("author_id", msg.author.id.to_string()));
         span.set_attribute(KeyValue::new("shard_id", ctx.shard_id.0.to_string()));
 
@@ -82,6 +83,7 @@ impl Handler {
             .expect("[EVENT/MESSAGE] failed to get confirmation message from channel");
 
         debug!("Rabbit MQ channel publish return message: {:#?}", confirm);
+
         cx.span().set_status(Status::Ok);
         cx.span().end();
     }

@@ -1,6 +1,7 @@
-use crate::{dto::guild_dto::GuildDto, injector::ReqwestInjector};
-use opentelemetry::{global, Context};
-use reqwest::Client;
+use crate::{dto::guild_dto::GuildDto, extractor::ActixWebExtractor, injector::ReqwestInjector};
+use actix_web::http::header::HeaderMap;
+use opentelemetry::global;
+use reqwest::{Client, Request};
 use serde::{Deserialize, Serialize};
 use serenity::all::GuildId;
 
@@ -25,14 +26,12 @@ impl HttpClient {
         }
     }
 
-    pub async fn get_guild(&self, guild_id: GuildId, cx: &Context) -> GuildDto {
-        let url = "http://localhost:4614/api/guilds";
-
-        let mut request = self
-            .client
-            .get(format!("{}/{}", url, guild_id))
-            .build()
-            .unwrap();
+    fn add_telelementry(&self, mut headers: &HeaderMap, request: &mut Request) {
+        let cx = global::get_text_map_propagator(|propagator| {
+            propagator.extract(&mut ActixWebExtractor {
+                headers: &mut headers,
+            })
+        });
 
         global::get_text_map_propagator(|propagator| {
             propagator.inject_context(
@@ -42,6 +41,18 @@ impl HttpClient {
                 },
             )
         });
+    }
+
+    pub async fn get_guild(&self, guild_id: GuildId, headers: &HeaderMap) -> GuildDto {
+        let url = "http://localhost:4614/api/guilds";
+
+        let mut request = self
+            .client
+            .get(format!("{}/{}", url, guild_id))
+            .build()
+            .unwrap();
+
+        self.add_telelementry(headers, &mut request);
 
         let response = self.client.execute(request).await.expect("Invalid reponse");
 
@@ -57,14 +68,7 @@ impl HttpClient {
                     .build()
                     .unwrap();
 
-                global::get_text_map_propagator(|propagator| {
-                    propagator.inject_context(
-                        &cx,
-                        &mut ReqwestInjector {
-                            headers: request.headers_mut(),
-                        },
-                    )
-                });
+                self.add_telelementry(headers, &mut request);
 
                 let response = self
                     .client

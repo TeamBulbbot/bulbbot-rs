@@ -1,11 +1,17 @@
 use crate::{
     events::{event_handler::Handler, models::event::Event},
     manger_container_structs::RabbitMQMangerContainer,
+    rabbit_mq::RabbitMqInjector,
 };
-use lapin::{options::BasicPublishOptions, BasicProperties};
+use lapin::{options::BasicPublishOptions, types::FieldTable, BasicProperties};
+use opentelemetry::{
+    global::{self, ObjectSafeSpan},
+    trace::{SpanKind, Status, TraceContextExt, Tracer},
+    KeyValue,
+};
 use serde::{Deserialize, Serialize};
-use serenity::model::prelude::MessageUpdateEvent;
 use serenity::prelude::Context;
+use serenity::{all::GuildId, model::prelude::MessageUpdateEvent};
 use tracing::debug;
 
 #[derive(Serialize, Deserialize)]
@@ -18,6 +24,31 @@ pub struct MessageDeleteEvent {
 
 impl Handler {
     pub async fn handle_message_update(&self, ctx: Context, event: MessageUpdateEvent) {
+        let tracer = global::tracer(String::new());
+
+        let mut span = tracer
+            .span_builder("message_update")
+            .with_kind(SpanKind::Producer)
+            .start(&tracer);
+
+        span.set_attribute(KeyValue::new(
+            "guild_id",
+            event
+                .guild_id
+                .unwrap_or_else(|| GuildId::new(1))
+                .to_string(),
+        ));
+        span.set_attribute(KeyValue::new("channel_id", event.channel_id.to_string()));
+        span.set_attribute(KeyValue::new("message_id", event.id.to_string()));
+        span.set_attribute(KeyValue::new("shard_id", ctx.shard_id.0.to_string()));
+
+        let cx = opentelemetry::Context::current_with_span(span);
+
+        let mut headers = FieldTable::default();
+        global::get_text_map_propagator(|propagator| {
+            propagator.inject_context(&cx, &mut RabbitMqInjector(&mut headers))
+        });
+
         let data = ctx.clone();
         let data_read = data.data.read().await;
 
@@ -42,7 +73,7 @@ impl Handler {
                 "bulbbot.gateway",
                 BasicPublishOptions::default(),
                 payload,
-                BasicProperties::default(),
+                BasicProperties::default().with_headers(headers),
             )
             .await
             .expect("[EVENT/MESSAGE_UPDATE] failed to publish to channel")
@@ -50,5 +81,8 @@ impl Handler {
             .expect("[EVENT/MESSAGE_UPDATE] failed to get confirmation message from channel");
 
         debug!("Rabbit MQ channel publish return message: {:#?}", confirm);
+
+        cx.span().set_status(Status::Ok);
+        cx.span().end();
     }
 }

@@ -39,7 +39,6 @@ impl Handler {
                 },
             )
         });
-
         let response = self.client.execute(request).await;
 
         match response {

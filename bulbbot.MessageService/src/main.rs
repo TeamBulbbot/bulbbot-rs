@@ -5,12 +5,14 @@ mod extractor;
 mod handlers;
 mod http_client;
 mod injector;
+mod middleware;
 mod models;
 mod schema;
 
-use actix_web::{get, middleware, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use app_config::config_app;
 use dotenv::dotenv;
+use middleware::telemetry::Telemetry;
 use opentelemetry::{global, trace::TraceError};
 use std::env;
 use tracing::log::info;
@@ -67,7 +69,8 @@ async fn main() {
         App::new()
             .app_data(web::Data::new(http_client.clone()))
             .app_data(web::Data::new(db_pool.clone()))
-            .wrap(middleware::Logger::default())
+            .wrap(actix_web::middleware::Logger::default())
+            .wrap(Telemetry)
             .configure(config_app)
             .service(health)
     })

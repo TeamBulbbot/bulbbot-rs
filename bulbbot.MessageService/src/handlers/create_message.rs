@@ -28,27 +28,11 @@ pub async fn create_message(
     http_client: web::Data<HttpClient>,
     content: web::Json<MessageCommand>,
 ) -> Result<HttpResponse, Error> {
-    let cx = global::get_text_map_propagator(|propagator| {
-        propagator.extract(&mut ActixWebExtractor {
-            headers: &mut request.headers(),
-        })
-    });
-
-    let tracer_provider = global::tracer_provider();
-
-    let tracer = tracer_provider
-        .tracer_builder("create_message")
-        .with_version(env!("CARGO_PKG_VERSION"))
-        .build();
-
-    let mut span = tracer.start_with_context("create_message", &cx);
-
     let response = http_client
-        .get_guild(content.content.guild_id.unwrap(), &cx)
+        .get_guild(content.content.guild_id.unwrap(), &request.headers())
         .await;
 
     if response.logging.message.is_none() {
-        span.end();
         return Ok(HttpResponse::Ok().finish());
     }
 
@@ -74,8 +58,6 @@ pub async fn create_message(
     })
     .await
     .expect("Blocking failed in add mesage");
-
-    span.end();
 
     Ok(HttpResponse::Ok().finish())
 }
