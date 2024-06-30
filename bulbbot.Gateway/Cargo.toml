@@ -33,7 +33,14 @@ serde = "1.0"
 serde_json = "1.0"
 lapin = { version = "2.3", default-features = false }
 actix-web = "4.7"
-uuid = { version = "1.8", features = ["v4", "fast-rng", "serde"] }
+opentelemetry = "0.23"
+opentelemetry_sdk = { version = "0.23", features = ["rt-tokio"] }
+opentelemetry-stdout = { version = "0.4", features = ["trace"] }
+opentelemetry-otlp = { version = "0.16", features = ["default", "tonic"] }
+opentelemetry-http = "0.12"
+opentelemetry-zipkin = { version = "0.21", features = [
+    "reqwest-client",
+], default-features = false }
 
 [target.'cfg(unix)'.dependencies]
 openssl = { version = "0.10", features = ["vendored"] }

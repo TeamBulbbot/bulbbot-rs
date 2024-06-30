@@ -7,14 +7,12 @@ use serde::{Deserialize, Serialize};
 use serenity::model::prelude::MessageUpdateEvent;
 use serenity::prelude::Context;
 use tracing::debug;
-use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
 pub struct MessageDeleteEvent {
     pub event: Event,
     pub shard_id: u32,
     pub timestamp: u64,
-    pub request_id: Uuid,
     pub content: MessageUpdateEvent,
 }
 
@@ -31,7 +29,6 @@ impl Handler {
             event: Event::MessageUpdate,
             shard_id: ctx.shard_id.0,
             timestamp: Handler::get_unix_time(),
-            request_id: Uuid::new_v4(),
             content: event,
         };
         let serlized = serde_json::to_string(&event)

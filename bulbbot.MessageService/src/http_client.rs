@@ -1,8 +1,8 @@
-use actix_web::{web, App, HttpRequest, HttpResponse, Responder};
+use crate::{dto::guild_dto::GuildDto, injector::ReqwestInjector};
+use opentelemetry::{global, Context};
 use reqwest::Client;
+use serde::{Deserialize, Serialize};
 use serenity::all::GuildId;
-
-use crate::dto::guild_dto::GuildDto;
 
 #[derive(Debug, Clone)]
 pub struct HttpClient {
@@ -25,12 +25,62 @@ impl HttpClient {
         }
     }
 
-    pub async fn get_guild(&self, guild_id: GuildId) -> GuildDto {
-        let url = format!("http://localhost:4614/api/guilds/{}", guild_id);
-        let response = self.client.get(&url).send().await.unwrap();
+    pub async fn get_guild(&self, guild_id: GuildId, cx: &Context) -> GuildDto {
+        let url = "http://localhost:4614/api/guilds";
 
-        let guild = response.json::<GuildDto>().await.unwrap();
+        let mut request = self
+            .client
+            .get(format!("{}/{}", url, guild_id))
+            .build()
+            .unwrap();
+
+        global::get_text_map_propagator(|propagator| {
+            propagator.inject_context(
+                &cx,
+                &mut ReqwestInjector {
+                    headers: request.headers_mut(),
+                },
+            )
+        });
+
+        let response = self.client.execute(request).await.expect("Invalid reponse");
+
+        let guild = match response.json::<GuildDto>().await {
+            Ok(g) => g,
+            Err(_) => {
+                let mut request = self
+                    .client
+                    .post(url)
+                    .json(&CreateGuildCommand {
+                        id: guild_id.into(),
+                    })
+                    .build()
+                    .unwrap();
+
+                global::get_text_map_propagator(|propagator| {
+                    propagator.inject_context(
+                        &cx,
+                        &mut ReqwestInjector {
+                            headers: request.headers_mut(),
+                        },
+                    )
+                });
+
+                let response = self
+                    .client
+                    .execute(request)
+                    .await
+                    .expect("Invalid response");
+
+                response.json::<GuildDto>().await.unwrap()
+            }
+        };
 
         guild
     }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CreateGuildCommand {
+    pub id: i64,
 }

@@ -13,7 +13,7 @@ use serenity::prelude::{Context, EventHandler};
 pub struct Handler;
 
 // Event handler for the bot
-// https://docs.rs/serenity/0.11.5/serenity/prelude/trait.EventHandler.html
+// https://docs.rs/serenity/latest/serenity/client/trait.EventHandler.html
 #[async_trait]
 impl EventHandler for Handler {
     // Dispatched upon startup.

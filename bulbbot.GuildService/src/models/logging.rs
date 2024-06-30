@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
     Copy,
 )]
 #[diesel(table_name = logging)]
-#[primary_key(guilds_id)]
+#[diesel(primary_key(guilds_id))]
 #[diesel(belongs_to(Guilds, foreign_key = guilds_id))]
 pub struct Logging {
     pub guilds_id: i64,

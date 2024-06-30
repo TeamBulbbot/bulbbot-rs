@@ -6,6 +6,8 @@ use actix_web::{get, App, HttpResponse, HttpServer, Responder};
 use dotenv::dotenv;
 use events::event_handler::Handler;
 use manger_container_structs::{RabbitMQMangerContainer, ShardManagerContainer};
+use opentelemetry::global::shutdown_tracer_provider;
+use opentelemetry::{global, trace::TraceError};
 use serenity::prelude::*;
 use std::env;
 use tracing::log::{error, info};
@@ -15,8 +17,28 @@ async fn hello() -> impl Responder {
     HttpResponse::Ok().body("Healthy!")
 }
 
+fn init_tracer_provider() -> Result<opentelemetry_sdk::trace::Tracer, TraceError> {
+    global::set_text_map_propagator(opentelemetry_zipkin::Propagator::new());
+    opentelemetry_zipkin::new_pipeline()
+        .with_service_name(format!(
+            "{}-{}-{}",
+            env::var("ENVIRONMENT").expect("[ENV] expected 'ENVIRONMENT' in the environment"),
+            env!("CARGO_PKG_NAME"),
+            env!("CARGO_PKG_VERSION")
+        ))
+        .with_collector_endpoint(
+            env::var("ZIPKIN_URL").expect("[ENV] expected 'ZIPKIN_URL' in the environment"),
+        )
+        .install_batch(opentelemetry_sdk::runtime::Tokio)
+}
+
 #[tokio::main]
 async fn main() {
+    dotenv().ok();
+
+    let tracer_provider = init_tracer_provider().expect("Failed to init tracer");
+    global::set_tracer_provider(tracer_provider.provider().unwrap().clone());
+
     let server_port = env::var("SERVER_PORT")
         .unwrap_or(String::from("8080"))
         .parse::<u16>()
@@ -33,8 +55,6 @@ async fn main() {
         env!("CARGO_PKG_VERSION"),
         env!("CARGO_PKG_REPOSITORY")
     );
-
-    dotenv().ok();
 
     let intents = GatewayIntents::GUILDS
         | GatewayIntents::GUILD_MEMBERS
@@ -78,6 +98,7 @@ async fn main() {
             .close(200, "Normal shutdown")
             .await
             .expect("Failed to close Rabbit MQ connection");
+        shutdown_tracer_provider();
     });
 
     tokio::spawn(async move {

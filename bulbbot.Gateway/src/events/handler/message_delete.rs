@@ -9,7 +9,6 @@ use serenity::{
     prelude::Context,
 };
 use tracing::debug;
-use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
 pub struct MessageDeleteEventContent {
@@ -23,7 +22,6 @@ pub struct MessageDeleteEvent {
     pub event: Event,
     pub shard_id: u32,
     pub timestamp: u64,
-    pub request_id: Uuid,
     pub content: MessageDeleteEventContent,
 }
 
@@ -46,7 +44,6 @@ impl Handler {
             event: Event::MessageDelete,
             shard_id: ctx.shard_id.0,
             timestamp: Handler::get_unix_time(),
-            request_id: Uuid::new_v4(),
             content: MessageDeleteEventContent {
                 channel_id,
                 deleted_message_id,
