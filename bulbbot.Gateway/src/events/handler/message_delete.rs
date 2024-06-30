@@ -78,10 +78,10 @@ impl Handler {
                 guild_id,
             },
         };
-        let serlized = serde_json::to_string(&event)
+        let serialized = serde_json::to_string(&event)
             .expect("[EVENT/MESSAGE_DELETE] failed to serialize event");
 
-        let payload = serlized.as_bytes();
+        let payload = serialized.as_bytes();
 
         let confirm = channel
             .basic_publish(

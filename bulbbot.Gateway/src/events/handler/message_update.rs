@@ -62,10 +62,10 @@ impl Handler {
             timestamp: Handler::get_unix_time(),
             content: event,
         };
-        let serlized = serde_json::to_string(&event)
+        let serialized = serde_json::to_string(&event)
             .expect("[EVENT/MESSAGE_UPDATE] failed to serialize event");
 
-        let payload = serlized.as_bytes();
+        let payload = serialized.as_bytes();
 
         let confirm = channel
             .basic_publish(
