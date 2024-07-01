@@ -1,3 +1,4 @@
+use lapin::types::{AMQPValue, FieldTable};
 use opentelemetry::propagation::Injector;
 use reqwest::header::HeaderMap;
 pub struct ReqwestInjector<'a> {
@@ -11,5 +12,14 @@ impl<'a> Injector for ReqwestInjector<'a> {
                 self.headers.insert(name, val);
             }
         }
+    }
+}
+
+pub struct RabbitMqInjector<'a>(pub &'a mut FieldTable);
+
+impl<'a> Injector for RabbitMqInjector<'a> {
+    fn set(&mut self, key: &str, value: String) {
+        self.0
+            .insert(key.into(), AMQPValue::LongString(value.into()));
     }
 }

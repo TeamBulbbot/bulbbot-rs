@@ -1,4 +1,3 @@
-use crate::extractor::ActixWebExtractor;
 use crate::schema::messages::dsl::messages;
 use crate::{
     database::DbPool,
@@ -9,8 +8,6 @@ use actix_web::web;
 use actix_web::HttpRequest;
 use actix_web::{http::Error, HttpResponse};
 use diesel::RunQueryDsl;
-use opentelemetry::global;
-use opentelemetry::trace::{Span, Tracer, TracerProvider};
 use serde::{Deserialize, Serialize};
 use serenity::{all::GuildId, model::channel::Message};
 
