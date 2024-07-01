@@ -1,4 +1,3 @@
-use lapin::types::AMQPValue;
 use lapin::{
     options::QueueDeclareOptions, types::FieldTable, Channel, Connection, ConnectionProperties,
 };
