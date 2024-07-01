@@ -1,5 +1,0 @@
-welcome: Rust I18n Example for share locales in entire workspace.
-hello: Hello world
-messages.hello: Hello, %{name}
-messages.goodbye: Goodbye, %{name}!
-messages.greeting: Hello, %{name}. How are you today?

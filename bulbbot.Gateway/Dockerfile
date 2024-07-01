@@ -7,6 +7,8 @@ RUN update-ca-certificates
 ENV USER=gateway
 ENV UID=10001
 
+EXPOSE 8080
+
 RUN adduser \
     --disabled-password \
     --gecos "" \

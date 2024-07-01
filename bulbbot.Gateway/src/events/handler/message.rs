@@ -1,51 +1,90 @@
 use crate::events::event_handler::Handler;
-use crate::events::models::log_type::{self, LogType};
-use crate::manger_container_structs::DatabaseMangerContainer;
-use entity::prelude::{Guilds, Messages};
+use crate::events::models::event::Event;
+use crate::manger_container_structs::RabbitMQMangerContainer;
+use crate::rabbit_mq::RabbitMqInjector;
+use lapin::types::FieldTable;
+use lapin::{options::BasicPublishOptions, BasicProperties};
+use opentelemetry::global::ObjectSafeSpan;
+use opentelemetry::trace::{SpanKind, Status, TraceContextExt};
+use opentelemetry::KeyValue;
+use opentelemetry::{global, trace::Tracer};
+use serde::{Deserialize, Serialize};
+use serenity::all::GuildId;
 use serenity::model::channel::Message;
 use serenity::prelude::Context;
-use tracing::info;
-use tracing::log::error;
+use tracing::debug;
+
+#[derive(Serialize, Deserialize)]
+pub struct MessageEvent {
+    pub event: Event,
+    pub shard_id: u32,
+    pub timestamp: u64,
+    pub content: Message,
+}
 
 impl Handler {
     pub async fn handle_message(&self, ctx: Context, msg: Message) {
-        if msg.author.bot || msg.guild_id.is_none() {
+        if msg.author.bot || msg.author.system || msg.guild_id.is_none() {
             return;
         }
+
+        let tracer = global::tracer(String::new());
+
+        let mut span = tracer
+            .span_builder("message")
+            .with_kind(SpanKind::Producer)
+            .start(&tracer);
+
+        span.set_attribute(KeyValue::new(
+            "guild_id",
+            msg.guild_id.unwrap_or_else(|| GuildId::new(1)).to_string(),
+        ));
+        span.set_attribute(KeyValue::new("channel_id", msg.channel_id.to_string()));
+        span.set_attribute(KeyValue::new("message_id", msg.id.to_string()));
+        span.set_attribute(KeyValue::new("author_id", msg.author.id.to_string()));
+        span.set_attribute(KeyValue::new("shard_id", ctx.shard_id.0.to_string()));
+
+        let cx = opentelemetry::Context::current_with_span(span);
+
+        let mut headers = FieldTable::default();
+        global::get_text_map_propagator(|propagator| {
+            propagator.inject_context(&cx, &mut RabbitMqInjector(&mut headers))
+        });
 
         let data = ctx.clone();
         let data_read = data.data.read().await;
-        let guild_id = u64::from(msg.guild_id.unwrap());
 
-        let db = data_read
-            .get::<DatabaseMangerContainer>()
-            .expect("[EVENT/MESSAGE] failed to get the 'database manager container'")
-            .get()
-            .expect("[EVENT/MESSAGE] the database connection is None");
+        let channel = data_read
+            .get::<RabbitMQMangerContainer>()
+            .expect("[EVENT/MESSAGE] failed to get the Rabbit MQ Channel");
 
-        let guild_db = Guilds::find_by_guild_id(guild_id).one(db).await;
-        if guild_db.is_err() {
-            error!("Database failed to get the guild: {:#?}", guild_db.err());
-            return;
-        }
-        let _guild = match guild_db.unwrap() {
-            Some(g) => g,
-            None => Guilds::create_guild(&db, guild_id).await,
+        let event = MessageEvent {
+            event: Event::Message,
+            shard_id: ctx.shard_id.0,
+            timestamp: Handler::get_unix_time(),
+            content: msg,
         };
+        let serialized =
+            serde_json::to_string(&event).expect("[EVENT/MESSAGE] failed to serialize event");
 
-        let message_logging =
-            log_type::database_column(&db, guild_id, &LogType::MessageDelete).await;
+        let payload = serialized.as_bytes();
 
-        if message_logging.is_none() {
-            return;
-        }
+        let confirm = channel
+            .basic_publish(
+                "",
+                "bulbbot.gateway",
+                BasicPublishOptions::default(),
+                payload,
+                BasicProperties::default().with_headers(headers),
+            )
+            .await
+            .expect("[EVENT/MESSAGE] failed to publish to channel")
+            .await
+            .expect("[EVENT/MESSAGE] failed to get confirmation message from channel");
 
-        match Messages::insert_message(&db, &msg, guild_id).await {
-            Ok(result) => result,
-            Err(err) => {
-                error!("Database insert error on 'Messages::insert_message': {:#?} in guild {} and message id {}", &err, &guild_id, &msg.id);
-                return;
-            }
-        };
+        debug!("Rabbit MQ channel publish return message: {:#?}", confirm);
+
+        cx.span().set_status(Status::Ok);
+        cx.span().end();
     }
 }
