@@ -1,0 +1,55 @@
+name: Bulbbot Message Service Validation
+
+on:
+  push:
+    paths:
+      - "bulbbot.MessageService/**"
+    branches:
+      - master
+  pull_request:
+    paths:
+      - "bulbbot.MessageService/**"
+    types: [opened, edited, reopened, synchronize]
+
+jobs:
+  test:
+    defaults:
+      run:
+        working-directory: ./bulbbot.MessageService
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Run tests
+        run: cargo test --verbose
+
+  fmt:
+    defaults:
+      run:
+        working-directory: ./bulbbot.MessageService
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: Enforce formatting
+        run: cargo fmt --check
+
+  clippy:
+    defaults:
+      run:
+        working-directory: ./bulbbot.MessageService
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Linting
+        run: cargo clippy --all -- -D warnings
