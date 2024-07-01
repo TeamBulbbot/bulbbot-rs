@@ -44,17 +44,17 @@ pub async fn delete_message(
     pool: web::Data<DbPool>,
     http_client: web::Data<HttpClient>,
     channel: web::Data<Channel>,
-    content: web::Json<MessageDeleteCommand>,
+    request_body: web::Json<MessageDeleteCommand>,
 ) -> Result<HttpResponse, Error> {
     let response = http_client
-        .get_guild(content.content.guild_id.unwrap(), request.headers())
+        .get_guild(request_body.content.guild_id.unwrap(), request.headers())
         .await;
 
     if response.logging.message.is_none() {
         return Ok(HttpResponse::Ok().finish());
     }
 
-    let message_id: i64 = content.content.deleted_message_id.into();
+    let message_id: i64 = request_body.content.deleted_message_id.into();
 
     let response: Option<Messages> = web::block(move || {
         let mut conn = pool.get().expect("Failed to get connection");
@@ -87,10 +87,10 @@ pub async fn delete_message(
 
             let log = MessageDeleteLog {
                 event: EventType::MessageDelete,
-                guild_id: content.content.guild_id,
-                channel_id: content.content.channel_id,
-                deleted_message_id: content.content.deleted_message_id,
-                shard_id: content.shard_id,
+                guild_id: request_body.content.guild_id,
+                channel_id: request_body.content.channel_id,
+                deleted_message_id: request_body.content.deleted_message_id,
+                shard_id: request_body.shard_id,
                 content: msg.content,
             };
 

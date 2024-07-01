@@ -53,6 +53,10 @@ impl Handler {
                 self.handle_message_delete_event(event_data, &mut span, cx)
                     .await
             }
+            EventType::MessageUpdate => {
+                self.handle_mesage_update_event(event_data, &mut span, cx)
+                    .await
+            }
             _ => false, /*
                         EventType::MessageUpdate => todo!(),
                         EventType::MessageDelete => todo!(),

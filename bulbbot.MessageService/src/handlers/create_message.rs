@@ -23,10 +23,10 @@ pub async fn create_message(
     request: HttpRequest,
     pool: web::Data<DbPool>,
     http_client: web::Data<HttpClient>,
-    content: web::Json<MessageCommand>,
+    request_body: web::Json<MessageCommand>,
 ) -> Result<HttpResponse, Error> {
     let response = http_client
-        .get_guild(content.content.guild_id.unwrap(), request.headers())
+        .get_guild(request_body.content.guild_id.unwrap(), request.headers())
         .await;
 
     if response.logging.message.is_none() {
@@ -37,15 +37,15 @@ pub async fn create_message(
         let mut conn = pool.get().expect("Failed to get connection");
 
         let new_message = NewMessage {
-            message_id: content.content.id.into(),
-            guild_id: content
+            message_id: request_body.content.id.into(),
+            guild_id: request_body
                 .content
                 .guild_id
                 .unwrap_or_else(|| GuildId::new(1))
                 .into(),
-            channel_id: content.content.channel_id.into(),
-            author_id: content.content.author.id.into(),
-            content: Some(content.content.content.clone()),
+            channel_id: request_body.content.channel_id.into(),
+            author_id: request_body.content.author.id.into(),
+            content: Some(request_body.content.content.clone()),
         };
 
         diesel::insert_into(messages)
