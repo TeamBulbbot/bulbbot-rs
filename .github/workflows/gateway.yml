@@ -28,7 +28,7 @@ jobs:
   fmt:
     defaults:
       run:
-        working-directory: ./Bulbbot.Gateway
+        working-directory: ./bulbbot.Gateway
     name: Rustfmt
     runs-on: ubuntu-latest
     steps:
@@ -42,7 +42,7 @@ jobs:
   clippy:
     defaults:
       run:
-        working-directory: ./Bulbbot.Gateway
+        working-directory: ./bulbbot.Gateway
     name: Clippy
     runs-on: ubuntu-latest
     steps:
