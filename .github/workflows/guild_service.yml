@@ -9,7 +9,7 @@ on:
   pull_request:
     paths:
       - "bulbbot.GuildService/**"
-    types: [opened, edited, reopened]
+    types: [opened, edited, reopened, synchronize]
 
 jobs:
   test:

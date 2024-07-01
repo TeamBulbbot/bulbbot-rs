@@ -9,7 +9,7 @@ on:
   pull_request:
     paths:
       - "bulbbot.GatewayHandler/**"
-    types: [opened, edited, reopened]
+    types: [opened, edited, reopened, synchronize]
 
 jobs:
   test:
