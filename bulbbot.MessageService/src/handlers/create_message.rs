@@ -26,7 +26,7 @@ pub async fn create_message(
     content: web::Json<MessageCommand>,
 ) -> Result<HttpResponse, Error> {
     let response = http_client
-        .get_guild(content.content.guild_id.unwrap(), &request.headers())
+        .get_guild(content.content.guild_id.unwrap(), request.headers())
         .await;
 
     if response.logging.message.is_none() {

@@ -54,8 +54,8 @@ where
     fn call(&self, req: ServiceRequest) -> Self::Future {
         let request = req.request();
         let cx = global::get_text_map_propagator(|propagator| {
-            propagator.extract(&mut ActixWebExtractor {
-                headers: &mut request.headers(),
+            propagator.extract(&ActixWebExtractor {
+                headers: request.headers(),
             })
         });
 

@@ -66,6 +66,6 @@ pub async fn create_guild_command_handler(
 
     match response {
         Some(resp) => Ok(HttpResponse::Created().json(resp)),
-        None => Ok(HttpResponse::BadRequest().body(format!("Guild already exists"))),
+        None => Ok(HttpResponse::BadRequest().body("Guild already exists")),
     }
 }

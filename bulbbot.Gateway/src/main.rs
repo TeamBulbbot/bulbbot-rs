@@ -105,7 +105,7 @@ async fn main() {
         info!("Running http server on localhost:{}", server_port);
         HttpServer::new(|| App::new().service(hello))
             .bind(("127.0.0.1", server_port))
-            .expect("Failed to bind to localhost:8080")
+            .unwrap_or_else(|_| panic!("Failed to bind to localhost:8080"))
             .run()
             .await
             .expect("Failed to start server");
