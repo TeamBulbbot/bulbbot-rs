@@ -1,21 +1,21 @@
-name: Bulbbot Gateway Validation
+name: Bulbbot Message Service Validation
 
 on:
   push:
     paths:
-      - "Bulbbot.Gateway/**"
+      - "bulbbot.MessageService/**"
     branches:
       - master
   pull_request:
     paths:
-      - "Bulbbot.Gateway/**"
+      - "bulbbot.MessageService/**"
     types: [opened, edited, reopened]
 
 jobs:
   test:
     defaults:
       run:
-        working-directory: ./Bulbbot.Gateway
+        working-directory: ./bulbbot.MessageService
     name: Test
     runs-on: ubuntu-latest
     steps:
@@ -23,12 +23,12 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - name: Run tests
-        run: cargo test
+        run: cargo test --verbose
 
   fmt:
     defaults:
       run:
-        working-directory: ./Bulbbot.Gateway
+        working-directory: ./bulbbot.MessageService
     name: Rustfmt
     runs-on: ubuntu-latest
     steps:
@@ -42,7 +42,7 @@ jobs:
   clippy:
     defaults:
       run:
-        working-directory: ./Bulbbot.Gateway
+        working-directory: ./bulbbot.MessageService
     name: Clippy
     runs-on: ubuntu-latest
     steps:
@@ -52,4 +52,4 @@ jobs:
           components: clippy
       - uses: Swatinem/rust-cache@v2
       - name: Linting
-        run: cargo clippy -- -D warnings
+        run: cargo clippy --all -- -D warnings
