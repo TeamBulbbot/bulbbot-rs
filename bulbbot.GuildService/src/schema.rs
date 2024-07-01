@@ -27,7 +27,4 @@ diesel::table! {
 
 diesel::joinable!(logging -> guilds (guilds_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    guilds,
-    logging,
-);
+diesel::allow_tables_to_appear_in_same_query!(guilds, logging,);

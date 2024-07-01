@@ -26,11 +26,9 @@ impl HttpClient {
         }
     }
 
-    fn add_telelementry(&self, mut headers: &HeaderMap, request: &mut Request) {
+    fn add_telelementry(&self, headers: &HeaderMap, request: &mut Request) {
         let cx = global::get_text_map_propagator(|propagator| {
-            propagator.extract(&mut ActixWebExtractor {
-                headers: &mut headers,
-            })
+            propagator.extract(&ActixWebExtractor { headers })
         });
 
         global::get_text_map_propagator(|propagator| {
@@ -56,7 +54,7 @@ impl HttpClient {
 
         let response = self.client.execute(request).await.expect("Invalid reponse");
 
-        let guild = match response.json::<GuildDto>().await {
+        match response.json::<GuildDto>().await {
             Ok(g) => g,
             Err(_) => {
                 let mut request = self
@@ -78,9 +76,7 @@ impl HttpClient {
 
                 response.json::<GuildDto>().await.unwrap()
             }
-        };
-
-        guild
+        }
     }
 }
 

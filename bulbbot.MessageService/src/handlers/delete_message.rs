@@ -2,11 +2,7 @@ use crate::extractor::ActixWebExtractor;
 use crate::injector::RabbitMqInjector;
 use crate::models::messages::Messages;
 use crate::schema::messages::dsl::messages;
-use crate::{
-    database::DbPool,
-    http_client::HttpClient,
-    models::{event_type::EventType, messages::NewMessage},
-};
+use crate::{database::DbPool, http_client::HttpClient, models::event_type::EventType};
 use actix_web::HttpRequest;
 use actix_web::{http::Error, web, HttpResponse};
 use diesel::{QueryDsl, RunQueryDsl};
@@ -51,7 +47,7 @@ pub async fn delete_message(
     content: web::Json<MessageDeleteCommand>,
 ) -> Result<HttpResponse, Error> {
     let response = http_client
-        .get_guild(content.content.guild_id.unwrap(), &request.headers())
+        .get_guild(content.content.guild_id.unwrap(), request.headers())
         .await;
 
     if response.logging.message.is_none() {
@@ -79,8 +75,8 @@ pub async fn delete_message(
         None => Ok(HttpResponse::NotFound().finish()),
         Some(msg) => {
             let cx = global::get_text_map_propagator(|propagator| {
-                propagator.extract(&mut ActixWebExtractor {
-                    headers: &mut request.headers(),
+                propagator.extract(&ActixWebExtractor {
+                    headers: request.headers(),
                 })
             });
 

@@ -37,7 +37,7 @@ impl Handler {
         let mut request = self.client.post(&url).json(&message).build().unwrap();
         global::get_text_map_propagator(|propagator| {
             propagator.inject_context(
-                &cx,
+                cx,
                 &mut ReqwestInjector {
                     headers: request.headers_mut(),
                 },

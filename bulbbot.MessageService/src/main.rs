@@ -79,7 +79,7 @@ async fn main() {
             .service(health)
     })
     .bind(("127.0.0.1", server_port))
-    .expect(&format!("Failed to bind to localhost:{}", server_port))
+    .unwrap_or_else(|_| panic!("Failed to bind to localhost:{}", server_port))
     .run()
     .await
     .expect("Failed to start server");

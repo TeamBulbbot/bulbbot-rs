@@ -44,6 +44,6 @@ pub async fn get_guild_command_handler(
 
     match response {
         Some(resp) => Ok(HttpResponse::Ok().json(resp)),
-        None => Ok(HttpResponse::NotFound().body(format!("Guild does not exist"))),
+        None => Ok(HttpResponse::NotFound().body("Guild does not exist")),
     }
 }

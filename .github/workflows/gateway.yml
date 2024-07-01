@@ -9,7 +9,7 @@ on:
   pull_request:
     paths:
       - "bulbbot.Gateway/**"
-    types: [opened, edited, reopened]
+    types: [opened, edited, reopened, synchronize]
 
 jobs:
   test:
@@ -28,7 +28,7 @@ jobs:
   fmt:
     defaults:
       run:
-        working-directory: ./Bulbbot.Gateway
+        working-directory: ./bulbbot.Gateway
     name: Rustfmt
     runs-on: ubuntu-latest
     steps:
@@ -42,7 +42,7 @@ jobs:
   clippy:
     defaults:
       run:
-        working-directory: ./Bulbbot.Gateway
+        working-directory: ./bulbbot.Gateway
     name: Clippy
     runs-on: ubuntu-latest
     steps:
