@@ -42,6 +42,7 @@ opentelemetry-http = "0.12"
 opentelemetry-zipkin = { version = "0.21", features = [
     "reqwest-client",
 ], default-features = false }
+lapin = { version = "2.3", default-features = false }
 
 [target.'cfg(unix)'.dependencies]
 openssl = { version = "0.10", features = ["vendored"] }

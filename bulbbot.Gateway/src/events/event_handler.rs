@@ -73,7 +73,9 @@ impl EventHandler for Handler {
     }
 
     // Dispatched when a user joins a guild.
-    async fn guild_member_addition(&self, _ctx: Context, _new_member: Member) {}
+    async fn guild_member_addition(&self, ctx: Context, new_member: Member) {
+        self.handle_guild_member_addition(ctx, new_member).await;
+    }
 
     /// Dispatched when a member is updated (e.g their nickname is updated).
     async fn guild_member_update(
@@ -88,11 +90,12 @@ impl EventHandler for Handler {
     // Dispatched when a user's membership ends by leaving, getting kicked, or being banned.
     async fn guild_member_removal(
         &self,
-        _ctx: Context,
-        _guild_id: GuildId,
-        _user: User,
+        ctx: Context,
+        guild_id: GuildId,
+        user: User,
         _member_data_if_available: Option<Member>,
     ) {
+        self.handle_guild_member_removal(ctx, guild_id, user).await;
     }
 
     // Dispatched when a channel is created.

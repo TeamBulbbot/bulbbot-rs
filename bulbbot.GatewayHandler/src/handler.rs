@@ -27,10 +27,12 @@ impl Handler {
 
     pub fn get_url(&self, event_type: &EventType) -> String {
         match event_type {
-            EventType::Message => String::from("http://localhost:3521/api"),
-            EventType::MessageUpdate => String::from("http://localhost:3521/api"),
-            EventType::MessageDelete => String::from("http://localhost:3521/api"),
-            _ => String::new(),
+            EventType::Message | EventType::MessageUpdate | EventType::MessageDelete => {
+                String::from("http://localhost:3521/api")
+            }
+            EventType::GuildMemberAddition | EventType::GuildMemberRemoval => {
+                String::from("http://localhost:4614/api")
+            }
         }
     }
 
@@ -57,12 +59,14 @@ impl Handler {
                 self.handle_mesage_update_event(event_data, &mut span, cx)
                     .await
             }
-            _ => false, /*
-                        EventType::MessageUpdate => todo!(),
-                        EventType::MessageDelete => todo!(),
-                        EventType::GuildMemberAddition => todo!(),
-                        EventType::GuildMemberRemoval => todo!(),
-                         */
+            EventType::GuildMemberAddition => {
+                self.handle_guild_member_addition_event(event_data, &mut span, cx)
+                    .await
+            }
+            EventType::GuildMemberRemoval => {
+                self.handle_guild_member_removal_event(event_data, &mut span, cx)
+                    .await
+            }
         };
 
         span.add_event("Handled the event", Vec::new());
