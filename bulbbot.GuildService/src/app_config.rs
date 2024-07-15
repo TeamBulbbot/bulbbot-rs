@@ -1,6 +1,6 @@
 use actix_web::web;
 
-use crate::handlers::*;
+use crate::handlers::{guild::*, guild_member::*};
 
 pub fn config_app(cfg: &mut web::ServiceConfig) {
     cfg.service(

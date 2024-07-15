@@ -2,6 +2,7 @@ use actix_web::{
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
     Error,
 };
+use common::telemetry::extractor_actix_web::ActixWebExtractor;
 use opentelemetry::{
     global::{self, ObjectSafeSpan},
     trace::{Tracer, TracerProvider},
@@ -11,8 +12,6 @@ use std::{
     future::{ready, Future, Ready},
     pin::Pin,
 };
-
-use crate::extractor::ActixWebExtractor;
 
 pub struct Telemetry;
 

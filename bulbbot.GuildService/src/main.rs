@@ -1,8 +1,6 @@
 mod app_config;
 mod database;
-mod extractor;
 mod handlers;
-mod injector;
 mod middleware;
 mod models;
 mod rabbit_mq;
