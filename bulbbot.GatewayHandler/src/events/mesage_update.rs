@@ -1,18 +1,9 @@
-use crate::injector::ReqwestInjector;
-use crate::{handler::Handler, models::event_type::EventType};
+use crate::handler::Handler;
+use common::telemetry::injector_reqwest::ReqwestInjector;
+use models::message::message_update_event::MessageUpdateEvent;
 use opentelemetry::{global, Context};
 use opentelemetry::{global::BoxedSpan, trace::Span};
-use serde::{Deserialize, Serialize};
-use serenity::model;
 use tracing::{debug, error};
-
-#[derive(Serialize, Deserialize)]
-pub struct MessageUpdateEvent {
-    pub event: EventType,
-    pub shard_id: u32,
-    pub timestamp: u64,
-    pub content: model::prelude::MessageUpdateEvent,
-}
 
 impl Handler {
     pub async fn handle_mesage_update_event(

@@ -1,4 +1,4 @@
-use super::event_type::EventType;
+use models::event_type::EventType;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]

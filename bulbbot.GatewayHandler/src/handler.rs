@@ -1,5 +1,5 @@
 use crate::models::event::Event;
-use crate::models::event_type::EventType;
+use models::event_type::EventType;
 use opentelemetry::trace::{Span, Tracer, TracerProvider};
 use opentelemetry::{global, Context};
 use reqwest::Client;

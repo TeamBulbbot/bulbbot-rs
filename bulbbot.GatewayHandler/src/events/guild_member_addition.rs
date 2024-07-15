@@ -1,18 +1,9 @@
-use crate::injector::ReqwestInjector;
-use crate::{handler::Handler, models::event_type::EventType};
+use crate::handler::Handler;
+use common::telemetry::injector_reqwest::ReqwestInjector;
+use models::guild::guild_member::guild_member_addition_event::GuildMemberAdditionEvent;
 use opentelemetry::{global, Context};
 use opentelemetry::{global::BoxedSpan, trace::Span};
-use serde::{Deserialize, Serialize};
-use serenity::all::Member;
 use tracing::{debug, error};
-
-#[derive(Serialize, Deserialize)]
-pub struct GuildMemberAdditionEvent {
-    pub event: EventType,
-    pub shard_id: u32,
-    pub timestamp: u64,
-    pub content: Member,
-}
 
 impl Handler {
     pub async fn handle_guild_member_addition_event(
@@ -21,8 +12,9 @@ impl Handler {
         span: &mut BoxedSpan,
         cx: &Context,
     ) -> bool {
-        let message: GuildMemberAdditionEvent =
-            serde_json::from_str(event_data).expect("Failed to parse data as message delete event");
+        println!("{:#?}", event_data);
+        let message: GuildMemberAdditionEvent = serde_json::from_str(event_data)
+            .expect("Failed to parse data as guild member add event");
 
         let url = format!("{}/guilds/member/add", self.get_url(&message.event));
         span.add_event(format!("Sending post request to {}", url), Vec::new());

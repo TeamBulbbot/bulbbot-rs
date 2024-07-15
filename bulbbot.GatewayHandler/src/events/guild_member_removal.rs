@@ -1,24 +1,9 @@
-use crate::injector::ReqwestInjector;
-use crate::{handler::Handler, models::event_type::EventType};
+use crate::handler::Handler;
+use common::telemetry::injector_reqwest::ReqwestInjector;
+use models::guild::guild_member::guild_member_removal_event::GuildMemberRemovalEvent;
 use opentelemetry::{global, Context};
 use opentelemetry::{global::BoxedSpan, trace::Span};
-use serde::{Deserialize, Serialize};
-use serenity::all::{GuildId, User};
 use tracing::{debug, error};
-
-#[derive(Serialize, Deserialize)]
-pub struct GuildMemberRemovalEventContent {
-    pub guild_id: GuildId,
-    pub user: User,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct GuildMemberRemovalEvent {
-    pub event: EventType,
-    pub shard_id: u32,
-    pub timestamp: u64,
-    pub content: GuildMemberRemovalEventContent,
-}
 
 impl Handler {
     pub async fn handle_guild_member_removal_event(
@@ -27,8 +12,8 @@ impl Handler {
         span: &mut BoxedSpan,
         cx: &Context,
     ) -> bool {
-        let message: GuildMemberRemovalEvent =
-            serde_json::from_str(event_data).expect("Failed to parse data as message delete event");
+        let message: GuildMemberRemovalEvent = serde_json::from_str(event_data)
+            .expect("Failed to parse data as guild member removal event");
 
         let url = format!("{}/guilds/member/remove", self.get_url(&message.event));
         span.add_event(format!("Sending post request to {}", url), Vec::new());

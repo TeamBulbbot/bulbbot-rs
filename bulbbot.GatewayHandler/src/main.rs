@@ -1,10 +1,10 @@
 mod events;
 mod handler;
-mod injector;
 mod models;
 mod rabbit_mq;
 
 use actix_web::{get, App, HttpResponse, HttpServer, Responder};
+use common::telemetry::extractor_rabbitmq::RabbitMqExtractor;
 use dotenv::dotenv;
 use handler::Handler;
 use lapin::{
@@ -13,7 +13,6 @@ use lapin::{
 };
 use opentelemetry::global::{self};
 use opentelemetry::trace::{Status, TraceContextExt, TraceError};
-use rabbit_mq::RabbitMqExtractor;
 use serenity::futures::StreamExt;
 use std::env;
 use std::str;
