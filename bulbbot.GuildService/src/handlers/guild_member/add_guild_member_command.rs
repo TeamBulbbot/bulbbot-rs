@@ -36,20 +36,15 @@ pub async fn add_guild_member_command_handler(
 
         let log_table: Result<Logging, _> = logging.find(guild_id).get_result::<Logging>(&mut conn);
 
-        println!("{:#?}", log_table);
-
         if log_table.is_err() {
             return None;
         }
-
-        println!("{:#?}", log_table);
 
         Some(log_table.unwrap())
     })
     .await
     .expect("Blocking failed in guild create");
 
-    println!("{:#?}", response);
     if response.is_none() {
         return Ok(HttpResponse::NotFound());
     }

@@ -43,7 +43,7 @@ impl Handler {
             .expect("[EVENT/GUILD_MEMBER_REMOVAL] failed to get the Rabbit MQ Channel");
 
         let event = GuildMemberRemovalEvent {
-            event: EventType::GuildMemberAddition,
+            event: EventType::GuildMemberRemoval,
             shard_id: ctx.shard_id.0,
             timestamp: Handler::get_unix_time(),
             content: GuildMemberRemovalEventContent { guild_id, user },

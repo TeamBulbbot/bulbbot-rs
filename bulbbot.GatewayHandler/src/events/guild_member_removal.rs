@@ -12,6 +12,7 @@ impl Handler {
         span: &mut BoxedSpan,
         cx: &Context,
     ) -> bool {
+        println!("hi");
         let message: GuildMemberRemovalEvent = serde_json::from_str(event_data)
             .expect("Failed to parse data as guild member removal event");
 

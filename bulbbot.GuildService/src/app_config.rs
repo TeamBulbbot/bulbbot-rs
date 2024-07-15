@@ -18,13 +18,13 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
                     .service(web::scope("/add").service(web::resource("").route(
                         web::post().to(add_guild_member_command::add_guild_member_command_handler),
                     )))
-                    .service(
-                        web::resource("/remove").route(
+                    .service(web::scope("/remove").service(
+                        web::resource("").route(
                             web::post().to(
                                 remove_guild_member_command::remove_guild_member_command_handler,
                             ),
                         ),
-                    ),
+                    )),
             ),
     );
 }
