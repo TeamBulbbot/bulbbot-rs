@@ -1,25 +1,19 @@
 use crate::events::event_handler::Handler;
-use crate::events::models::event::Event;
 use crate::manger_container_structs::RabbitMQMangerContainer;
-use crate::rabbit_mq::RabbitMqInjector;
+use common::telemetry::injector_rabbitmq::RabbitMqInjector;
 use lapin::types::FieldTable;
 use lapin::{options::BasicPublishOptions, BasicProperties};
+use models::event_type::EventType;
+use models::guild::guild_member::guild_member_addition_event::{
+    GuildMemberAdditionEvent, GuildMemberAdditionEventContent,
+};
 use opentelemetry::global::ObjectSafeSpan;
 use opentelemetry::trace::{SpanKind, Status, TraceContextExt};
 use opentelemetry::KeyValue;
 use opentelemetry::{global, trace::Tracer};
-use serde::{Deserialize, Serialize};
 use serenity::all::Member;
 use serenity::prelude::Context;
 use tracing::debug;
-
-#[derive(Serialize, Deserialize)]
-pub struct GuildMemberAdditionEvent {
-    pub event: Event,
-    pub shard_id: u32,
-    pub timestamp: u64,
-    pub content: Member,
-}
 
 impl Handler {
     pub async fn handle_guild_member_addition(&self, ctx: Context, member: Member) {
@@ -49,10 +43,14 @@ impl Handler {
             .expect("[EVENT/GUILD_MEMBER_ADDITION] failed to get the Rabbit MQ Channel");
 
         let event = GuildMemberAdditionEvent {
-            event: Event::GuildMemberAddition,
+            event: EventType::GuildMemberAddition,
             shard_id: ctx.shard_id.0,
             timestamp: Handler::get_unix_time(),
-            content: member,
+            content: GuildMemberAdditionEventContent {
+                guild_id: member.guild_id,
+                roles: member.roles,
+                user: member.user,
+            },
         };
         let serialized = serde_json::to_string(&event)
             .expect("[EVENT/GUILD_MEMBER_ADDITION] failed to serialize event");

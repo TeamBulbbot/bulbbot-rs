@@ -1,31 +1,19 @@
 use crate::events::event_handler::Handler;
-use crate::events::models::event::Event;
 use crate::manger_container_structs::RabbitMQMangerContainer;
-use crate::rabbit_mq::RabbitMqInjector;
+use common::telemetry::injector_rabbitmq::RabbitMqInjector;
 use lapin::types::FieldTable;
 use lapin::{options::BasicPublishOptions, BasicProperties};
+use models::event_type::EventType;
+use models::guild::guild_member::guild_member_removal_event::{
+    GuildMemberRemovalEvent, GuildMemberRemovalEventContent,
+};
 use opentelemetry::global::ObjectSafeSpan;
 use opentelemetry::trace::{SpanKind, Status, TraceContextExt};
 use opentelemetry::KeyValue;
 use opentelemetry::{global, trace::Tracer};
-use serde::{Deserialize, Serialize};
 use serenity::all::{GuildId, User};
 use serenity::prelude::Context;
 use tracing::debug;
-
-#[derive(Serialize, Deserialize)]
-pub struct GuildMemberRemovalEventContent {
-    pub guild_id: GuildId,
-    pub user: User,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct GuildMemberRemovalEvent {
-    pub event: Event,
-    pub shard_id: u32,
-    pub timestamp: u64,
-    pub content: GuildMemberRemovalEventContent,
-}
 
 impl Handler {
     pub async fn handle_guild_member_removal(&self, ctx: Context, guild_id: GuildId, user: User) {
@@ -55,7 +43,7 @@ impl Handler {
             .expect("[EVENT/GUILD_MEMBER_REMOVAL] failed to get the Rabbit MQ Channel");
 
         let event = GuildMemberRemovalEvent {
-            event: Event::GuildMemberAddition,
+            event: EventType::GuildMemberAddition,
             shard_id: ctx.shard_id.0,
             timestamp: Handler::get_unix_time(),
             content: GuildMemberRemovalEventContent { guild_id, user },

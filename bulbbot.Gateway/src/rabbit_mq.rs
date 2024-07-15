@@ -1,18 +1,7 @@
-use lapin::types::AMQPValue;
 use lapin::{
     options::QueueDeclareOptions, types::FieldTable, Channel, Connection, ConnectionProperties,
 };
-use opentelemetry::propagation::Injector;
 use tracing::info;
-
-pub struct RabbitMqInjector<'a>(pub &'a mut FieldTable);
-
-impl<'a> Injector for RabbitMqInjector<'a> {
-    fn set(&mut self, key: &str, value: String) {
-        self.0
-            .insert(key.into(), AMQPValue::LongString(value.into()));
-    }
-}
 
 pub async fn connect() -> (Connection, Channel) {
     let rabbit_mq_addr = format!(
