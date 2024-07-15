@@ -1,42 +1,34 @@
-use crate::extractor::ActixWebExtractor;
-use crate::injector::RabbitMqInjector;
 use crate::models::messages::Messages;
 use crate::schema::messages::dsl::messages;
-use crate::{database::DbPool, http_client::HttpClient, models::event_type::EventType};
+use crate::{database::DbPool, http_client::HttpClient};
 use actix_web::HttpRequest;
 use actix_web::{http::Error, web, HttpResponse};
+use common::telemetry::extractor_actix_web::ActixWebExtractor;
+use common::telemetry::injector_rabbitmq::RabbitMqInjector;
 use diesel::{QueryDsl, RunQueryDsl};
 use lapin::options::BasicPublishOptions;
 use lapin::types::FieldTable;
 use lapin::{BasicProperties, Channel};
+use models::event_type::EventType;
+use models::message::mesage_delete_log::MessageDeleteLog;
 use opentelemetry::global;
 use serde::{Deserialize, Serialize};
 use serenity::all::{ChannelId, GuildId, MessageId};
 use tracing::debug;
 
-#[derive(Serialize, Deserialize, Copy, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct MessageDeleteEventContent {
     pub channel_id: ChannelId,
     pub deleted_message_id: MessageId,
     pub guild_id: Option<GuildId>,
 }
 
-#[derive(Serialize, Deserialize, Copy, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct MessageDeleteCommand {
     pub event: EventType,
     pub shard_id: u32,
     pub timestamp: u64,
     pub content: MessageDeleteEventContent,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct MessageDeleteLog {
-    pub event: EventType,
-    pub shard_id: u32,
-    pub guild_id: Option<GuildId>,
-    pub channel_id: ChannelId,
-    pub deleted_message_id: MessageId,
-    pub content: Option<String>,
 }
 
 pub async fn delete_message(

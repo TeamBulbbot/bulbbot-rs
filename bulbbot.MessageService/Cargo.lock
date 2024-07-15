@@ -673,6 +673,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "common"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "lapin",
+ "opentelemetry",
+ "reqwest 0.12.4",
+]
+
+[[package]]
 name = "concurrent-queue"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1636,9 +1646,11 @@ version = "0.0.0"
 dependencies = [
  "actix-web",
  "chrono",
+ "common",
  "diesel",
  "dotenv",
  "lapin",
+ "models",
  "openssl",
  "opentelemetry",
  "opentelemetry-http",
@@ -1697,6 +1709,14 @@ dependencies = [
  "log",
  "wasi",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "models"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serenity",
 ]
 
 [[package]]

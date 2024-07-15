@@ -1,10 +1,8 @@
 mod app_config;
 mod database;
 mod dto;
-mod extractor;
 mod handlers;
 mod http_client;
-mod injector;
 mod middleware;
 mod models;
 mod rabbit_mq;
