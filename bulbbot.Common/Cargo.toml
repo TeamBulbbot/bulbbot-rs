@@ -1,0 +1,19 @@
+[package]
+name = "common"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+opentelemetry = "0.23"
+lapin = { version = "2.3", default-features = false }
+reqwest = { version = "0.12", features = ["json"] }
+actix-web = "4.7"
+
+[lib]
+name = "common"
+path = "src/lib.rs"
+
+[[bin]]
+name = "common"
+path = "src/bin/common.rs"
