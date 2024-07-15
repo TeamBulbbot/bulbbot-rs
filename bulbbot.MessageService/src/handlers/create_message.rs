@@ -1,13 +1,10 @@
 use crate::schema::messages::dsl::messages;
-use crate::{
-    database::DbPool,
-    http_client::HttpClient,
-    models::{event_type::EventType, messages::NewMessage},
-};
+use crate::{database::DbPool, http_client::HttpClient, models::messages::NewMessage};
 use actix_web::web;
 use actix_web::HttpRequest;
 use actix_web::{http::Error, HttpResponse};
 use diesel::RunQueryDsl;
+use models::event_type::EventType;
 use serde::{Deserialize, Serialize};
 use serenity::{all::GuildId, model::channel::Message};
 

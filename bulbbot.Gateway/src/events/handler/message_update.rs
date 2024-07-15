@@ -1,26 +1,15 @@
-use crate::{
-    events::{event_handler::Handler, models::event::Event},
-    manger_container_structs::RabbitMQMangerContainer,
-    rabbit_mq::RabbitMqInjector,
-};
+use crate::{events::event_handler::Handler, manger_container_structs::RabbitMQMangerContainer};
+use common::telemetry::injector_rabbitmq::RabbitMqInjector;
 use lapin::{options::BasicPublishOptions, types::FieldTable, BasicProperties};
+use models::{event_type::EventType, message::message_update_event::MessageUpdateEvent};
 use opentelemetry::{
     global::{self, ObjectSafeSpan},
     trace::{SpanKind, Status, TraceContextExt, Tracer},
     KeyValue,
 };
-use serde::{Deserialize, Serialize};
 use serenity::prelude::Context;
 use serenity::{all::GuildId, model};
 use tracing::debug;
-
-#[derive(Serialize, Deserialize)]
-pub struct MessageUpdateEvent {
-    pub event: Event,
-    pub shard_id: u32,
-    pub timestamp: u64,
-    pub content: model::prelude::MessageUpdateEvent,
-}
 
 impl Handler {
     pub async fn handle_message_update(
@@ -61,7 +50,7 @@ impl Handler {
             .expect("[EVENT/MESSAGE_UPDATE] failed to get the Rabbit MQ Channel");
 
         let event = MessageUpdateEvent {
-            event: Event::MessageUpdate,
+            event: EventType::MessageUpdate,
             shard_id: ctx.shard_id.0,
             timestamp: Handler::get_unix_time(),
             content: event,

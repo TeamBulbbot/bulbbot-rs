@@ -1,10 +1,9 @@
 mod app_config;
 mod database;
-mod extractor;
 mod handlers;
-mod injector;
 mod middleware;
 mod models;
+mod rabbit_mq;
 mod schema;
 
 use crate::middleware::telemetry::Telemetry;
@@ -62,10 +61,13 @@ async fn main() {
 
     let db_pool = database::establish_connection();
 
+    let (_rabbit_mq, rabbit_mq_channel) = rabbit_mq::connect().await;
+
     info!("Running http server on localhost:{}", server_port);
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(db_pool.clone()))
+            .app_data(web::Data::new(rabbit_mq_channel.clone()))
             .wrap(actix_web::middleware::Logger::default())
             .wrap(Telemetry)
             .configure(config_app)

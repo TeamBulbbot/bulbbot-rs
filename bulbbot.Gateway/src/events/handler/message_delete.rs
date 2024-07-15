@@ -1,35 +1,20 @@
-use crate::{
-    events::{event_handler::Handler, models::event::Event},
-    manger_container_structs::RabbitMQMangerContainer,
-    rabbit_mq::RabbitMqInjector,
-};
+use crate::{events::event_handler::Handler, manger_container_structs::RabbitMQMangerContainer};
+use common::telemetry::injector_rabbitmq::RabbitMqInjector;
 use lapin::{options::BasicPublishOptions, types::FieldTable, BasicProperties};
+use models::{
+    event_type::EventType,
+    message::message_delete_event::{MessageDeleteEvent, MessageDeleteEventContent},
+};
 use opentelemetry::{
     global,
     trace::{SpanKind, Status, TraceContextExt, Tracer},
 };
 use opentelemetry::{global::ObjectSafeSpan, KeyValue};
-use serde::{Deserialize, Serialize};
 use serenity::{
     model::prelude::{ChannelId, GuildId, MessageId},
     prelude::Context,
 };
 use tracing::debug;
-
-#[derive(Serialize, Deserialize)]
-pub struct MessageDeleteEventContent {
-    pub channel_id: ChannelId,
-    pub deleted_message_id: MessageId,
-    pub guild_id: Option<GuildId>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct MessageDeleteEvent {
-    pub event: Event,
-    pub shard_id: u32,
-    pub timestamp: u64,
-    pub content: MessageDeleteEventContent,
-}
 
 impl Handler {
     pub async fn handle_message_delete(
@@ -69,7 +54,7 @@ impl Handler {
             .expect("[EVENT/MESSAGE_DELETE] failed to get the Rabbit MQ Channel");
 
         let event = MessageDeleteEvent {
-            event: Event::MessageDelete,
+            event: EventType::MessageDelete,
             shard_id: ctx.shard_id.0,
             timestamp: Handler::get_unix_time(),
             content: MessageDeleteEventContent {

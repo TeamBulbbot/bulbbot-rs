@@ -1,0 +1,27 @@
+[package]
+name = "models"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serenity = { version = "0.12", default-features = false, features = [
+    "client",
+    "builder",
+    "collector",
+    "model",
+    "utils",
+    "unstable_discord_api",
+    "rustls_backend",
+    "http",
+    "gateway",
+] }
+
+[lib]
+name = "models"
+path = "src/lib.rs"
+
+[[bin]]
+name = "models"
+path = "src/bin/models.rs"

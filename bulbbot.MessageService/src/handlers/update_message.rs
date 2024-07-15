@@ -1,15 +1,17 @@
-use crate::extractor::ActixWebExtractor;
-use crate::injector::RabbitMqInjector;
 use crate::models::messages::{Messages, NewMessage};
 use crate::schema::messages::dsl::messages;
 use crate::schema::messages::{content, message_id};
-use crate::{database::DbPool, http_client::HttpClient, models::event_type::EventType};
+use crate::{database::DbPool, http_client::HttpClient};
 use actix_web::HttpRequest;
 use actix_web::{http::Error, web, HttpResponse};
+use common::telemetry::extractor_actix_web::ActixWebExtractor;
+use common::telemetry::injector_rabbitmq::RabbitMqInjector;
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 use lapin::options::BasicPublishOptions;
 use lapin::types::FieldTable;
 use lapin::{BasicProperties, Channel};
+use models::event_type::EventType;
+use models::message::mesage_update_log::MessageUpdateLog;
 use opentelemetry::global;
 use serde::{Deserialize, Serialize};
 use serenity::all::GuildId;
@@ -22,17 +24,6 @@ pub struct MessageUpdateCommand {
     pub shard_id: u32,
     pub timestamp: u64,
     pub content: model::prelude::MessageUpdateEvent,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct MessageUpdateLog {
-    pub event: EventType,
-    pub shard_id: u32,
-    pub guild_id: Option<i64>,
-    pub channel_id: i64,
-    pub message_id: i64,
-    pub before_content: Option<String>,
-    pub after_content: Option<String>,
 }
 
 pub async fn update_message(

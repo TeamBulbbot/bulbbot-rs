@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub enum Event {
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum EventType {
     Message,
     MessageUpdate,
     MessageDelete,

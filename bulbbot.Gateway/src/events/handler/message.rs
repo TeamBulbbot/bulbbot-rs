@@ -1,26 +1,18 @@
 use crate::events::event_handler::Handler;
-use crate::events::models::event::Event;
 use crate::manger_container_structs::RabbitMQMangerContainer;
-use crate::rabbit_mq::RabbitMqInjector;
+use common::telemetry::injector_rabbitmq::RabbitMqInjector;
 use lapin::types::FieldTable;
 use lapin::{options::BasicPublishOptions, BasicProperties};
+use models::event_type::EventType;
+use models::message::message_event::MessageEvent;
 use opentelemetry::global::ObjectSafeSpan;
 use opentelemetry::trace::{SpanKind, Status, TraceContextExt};
 use opentelemetry::KeyValue;
 use opentelemetry::{global, trace::Tracer};
-use serde::{Deserialize, Serialize};
 use serenity::all::GuildId;
 use serenity::model::channel::Message;
 use serenity::prelude::Context;
 use tracing::debug;
-
-#[derive(Serialize, Deserialize)]
-pub struct MessageEvent {
-    pub event: Event,
-    pub shard_id: u32,
-    pub timestamp: u64,
-    pub content: Message,
-}
 
 impl Handler {
     pub async fn handle_message(&self, ctx: Context, msg: Message) {
@@ -59,7 +51,7 @@ impl Handler {
             .expect("[EVENT/MESSAGE] failed to get the Rabbit MQ Channel");
 
         let event = MessageEvent {
-            event: Event::Message,
+            event: EventType::Message,
             shard_id: ctx.shard_id.0,
             timestamp: Handler::get_unix_time(),
             content: msg,

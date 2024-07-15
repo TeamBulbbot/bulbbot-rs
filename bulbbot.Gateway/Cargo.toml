@@ -41,6 +41,8 @@ opentelemetry-http = "0.12"
 opentelemetry-zipkin = { version = "0.21", features = [
     "reqwest-client",
 ], default-features = false }
+models = { path = "../bulbbot.Models" }
+common = { path = "../bulbbot.Common" }
 
 [target.'cfg(unix)'.dependencies]
 openssl = { version = "0.10", features = ["vendored"] }

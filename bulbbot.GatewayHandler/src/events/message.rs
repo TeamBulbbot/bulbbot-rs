@@ -1,21 +1,12 @@
-use crate::injector::ReqwestInjector;
-use crate::{handler::Handler, models::event_type::EventType};
+use crate::handler::Handler;
+use common::telemetry::injector_reqwest::ReqwestInjector;
+use models::message::message_event::MessageEvent;
 use opentelemetry::Context;
 use opentelemetry::{
     global::{self, BoxedSpan},
     trace::Span,
 };
-use serde::{Deserialize, Serialize};
-use serenity::model::channel::Message;
 use tracing::{debug, error};
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct MessageEvent {
-    pub event: EventType,
-    pub shard_id: u32,
-    pub timestamp: i64,
-    pub content: Message,
-}
 
 impl Handler {
     pub async fn handle_message_event(

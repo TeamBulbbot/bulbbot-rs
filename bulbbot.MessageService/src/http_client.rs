@@ -1,5 +1,8 @@
-use crate::{dto::guild_dto::GuildDto, extractor::ActixWebExtractor, injector::ReqwestInjector};
+use crate::dto::guild_dto::GuildDto;
 use actix_web::http::header::HeaderMap;
+use common::telemetry::{
+    extractor_actix_web::ActixWebExtractor, injector_reqwest::ReqwestInjector,
+};
 use opentelemetry::global;
 use reqwest::{Client, Request};
 use serde::{Deserialize, Serialize};

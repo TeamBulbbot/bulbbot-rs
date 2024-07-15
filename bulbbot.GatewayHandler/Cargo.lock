@@ -673,6 +673,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "common"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "lapin",
+ "opentelemetry",
+ "reqwest 0.12.4",
+]
+
+[[package]]
 name = "concurrent-queue"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1071,8 +1081,10 @@ version = "0.0.0"
 dependencies = [
  "actix-web",
  "chrono",
+ "common",
  "dotenv",
  "lapin",
+ "models",
  "openssl",
  "opentelemetry",
  "opentelemetry-http",
@@ -1729,6 +1741,14 @@ dependencies = [
  "log",
  "wasi",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "models"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serenity",
 ]
 
 [[package]]
@@ -2626,6 +2646,7 @@ dependencies = [
  "base64 0.22.1",
  "bitflags 2.5.0",
  "bytes",
+ "flate2",
  "futures",
  "mime_guess",
  "percent-encoding",
@@ -2638,6 +2659,7 @@ dependencies = [
  "tokio",
  "tokio-tungstenite",
  "tracing",
+ "typemap_rev",
  "url",
 ]
 
@@ -3162,6 +3184,12 @@ dependencies = [
  "quote",
  "syn 2.0.66",
 ]
+
+[[package]]
+name = "typemap_rev"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "74b08b0c1257381af16a5c3605254d529d3e7e109f3c62befc5d168968192998"
 
 [[package]]
 name = "typenum"
